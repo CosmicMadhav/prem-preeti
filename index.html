@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ffe9d6" />
+<title>PREM — our world</title>
+<meta name="description" content="A little world built for Preeti." />
+<!-- The repo has to be public for GitHub Pages, but this keeps the page
+     out of Google and other search engines. Only someone with the link
+     will find it. Remove these two lines if you ever want it indexed. -->
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<meta name="googlebot" content="noindex, nofollow" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐼</text></svg>" />
+</head>
+<body class="is-locked">
+
+<!-- ══════════════════════════════════════════════════════════
+     PANDAS — drawn once here, reused all over the page
+════════════════════════════════════════════════════════════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+
+  <!-- sitting panda, holding a heart -->
+  <symbol id="panda" viewBox="0 0 120 132">
+    <circle cx="36" cy="24" r="12" fill="#2b2320"/>
+    <circle cx="84" cy="24" r="12" fill="#2b2320"/>
+    <circle cx="36" cy="24" r="5.5" fill="#e88bb0"/>
+    <circle cx="84" cy="24" r="5.5" fill="#e88bb0"/>
+    <ellipse cx="42" cy="118" rx="12" ry="9" fill="#2b2320"/>
+    <ellipse cx="78" cy="118" rx="12" ry="9" fill="#2b2320"/>
+    <ellipse cx="60" cy="96" rx="28" ry="25" fill="#fffdf8"/>
+    <ellipse cx="31" cy="90" rx="9" ry="14" fill="#2b2320" transform="rotate(18 31 90)"/>
+    <ellipse cx="89" cy="90" rx="9" ry="14" fill="#2b2320" transform="rotate(-18 89 90)"/>
+    <path class="panda__heart"
+          d="M60 106c-9-6-16-11-16-18a8 8 0 0 1 16-4 8 8 0 0 1 16 4c0 7-7 12-16 18z" fill="#e0709b"/>
+    <circle cx="60" cy="50" r="31" fill="#fffdf8"/>
+    <ellipse cx="47" cy="48" rx="10.5" ry="13" fill="#2b2320" transform="rotate(-18 47 48)"/>
+    <ellipse cx="73" cy="48" rx="10.5" ry="13" fill="#2b2320" transform="rotate(18 73 48)"/>
+    <circle cx="48" cy="49" r="4.6" fill="#fffdf8"/>
+    <circle cx="72" cy="49" r="4.6" fill="#fffdf8"/>
+    <circle class="panda__pupil" cx="48.6" cy="49.6" r="2.8" fill="#2b2320"/>
+    <circle class="panda__pupil" cx="72.6" cy="49.6" r="2.8" fill="#2b2320"/>
+    <circle cx="49.8" cy="48.4" r="1.1" fill="#fff"/>
+    <circle cx="73.8" cy="48.4" r="1.1" fill="#fff"/>
+    <ellipse cx="38" cy="60" rx="6" ry="3.6" fill="#ff9dbd" opacity=".55"/>
+    <ellipse cx="82" cy="60" rx="6" ry="3.6" fill="#ff9dbd" opacity=".55"/>
+    <ellipse cx="60" cy="60" rx="4.6" ry="3.3" fill="#2b2320"/>
+    <path d="M60 63.5v3.5M60 67c-2.6 3.4-6.6 3.4-8.4.6M60 67c2.6 3.4 6.6 3.4 8.4.6"
+          stroke="#2b2320" stroke-width="1.9" stroke-linecap="round" fill="none"/>
+  </symbol>
+
+  <!-- sleeping panda, curled up on its side -->
+  <symbol id="panda-sleep" viewBox="0 0 180 108">
+    <!-- back leg + tail -->
+    <ellipse cx="140" cy="84" rx="17" ry="12" fill="#2b2320"/>
+    <circle cx="156" cy="66" r="8" fill="#fffdf8"/>
+    <!-- body, breathing -->
+    <ellipse class="panda__belly" cx="104" cy="70" rx="46" ry="29" fill="#fffdf8"/>
+    <!-- front paw tucked under the chin -->
+    <ellipse cx="76" cy="90" rx="18" ry="11" fill="#2b2320" transform="rotate(-8 76 90)"/>
+    <!-- head resting -->
+    <circle cx="52" cy="60" r="30" fill="#fffdf8"/>
+    <circle cx="34" cy="36" r="11.5" fill="#2b2320"/>
+    <circle cx="70" cy="33" r="10.5" fill="#2b2320"/>
+    <circle cx="34" cy="36" r="5" fill="#e88bb0"/>
+    <circle cx="70" cy="33" r="4.6" fill="#e88bb0"/>
+    <!-- eye patches -->
+    <ellipse cx="40" cy="58" rx="10" ry="12" fill="#2b2320" transform="rotate(-16 40 58)"/>
+    <ellipse cx="66" cy="57" rx="10" ry="12" fill="#2b2320" transform="rotate(14 66 57)"/>
+    <!-- closed, contented eyes -->
+    <path d="M34 58q6 6 12 0M60 57q6 6 12 0" stroke="#fffdf8" stroke-width="2.6"
+          stroke-linecap="round" fill="none"/>
+    <ellipse cx="41" cy="72" rx="6" ry="3.4" fill="#ff9dbd" opacity=".5"/>
+    <ellipse cx="53" cy="70" rx="4.4" ry="3.2" fill="#2b2320"/>
+    <path d="M53 73.5q0 3 3 3.4" stroke="#2b2320" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  </symbol>
+
+  <!-- panda peeking over a ledge -->
+  <symbol id="panda-peek" viewBox="0 0 120 82">
+    <circle cx="34" cy="26" r="12" fill="#2b2320"/>
+    <circle cx="86" cy="26" r="12" fill="#2b2320"/>
+    <circle cx="34" cy="26" r="5.5" fill="#e88bb0"/>
+    <circle cx="86" cy="26" r="5.5" fill="#e88bb0"/>
+    <circle cx="60" cy="46" r="32" fill="#fffdf8"/>
+    <ellipse cx="46" cy="44" rx="11" ry="13.5" fill="#2b2320" transform="rotate(-18 46 44)"/>
+    <ellipse cx="74" cy="44" rx="11" ry="13.5" fill="#2b2320" transform="rotate(18 74 44)"/>
+    <circle cx="47" cy="45" r="4.8" fill="#fffdf8"/>
+    <circle cx="73" cy="45" r="4.8" fill="#fffdf8"/>
+    <circle class="panda__pupil" cx="47.6" cy="45.6" r="2.9" fill="#2b2320"/>
+    <circle class="panda__pupil" cx="73.6" cy="45.6" r="2.9" fill="#2b2320"/>
+    <circle cx="48.9" cy="44.3" r="1.1" fill="#fff"/>
+    <circle cx="74.9" cy="44.3" r="1.1" fill="#fff"/>
+    <ellipse cx="36" cy="57" rx="6" ry="3.6" fill="#ff9dbd" opacity=".55"/>
+    <ellipse cx="84" cy="57" rx="6" ry="3.6" fill="#ff9dbd" opacity=".55"/>
+    <ellipse cx="60" cy="57" rx="4.6" ry="3.3" fill="#2b2320"/>
+    <path d="M60 60.5v3M60 64c-2.6 3.2-6.4 3.2-8.2.6M60 64c2.6 3.2 6.4 3.2 8.2.6"
+          stroke="#2b2320" stroke-width="1.9" stroke-linecap="round" fill="none"/>
+    <!-- paws gripping the ledge -->
+    <ellipse cx="22" cy="74" rx="12" ry="8" fill="#2b2320"/>
+    <ellipse cx="98" cy="74" rx="12" ry="8" fill="#2b2320"/>
+  </symbol>
+
+  <!-- panda rolled into a ball -->
+  <symbol id="panda-roll" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46" fill="#fffdf8"/>
+    <circle cx="22" cy="24" r="13" fill="#2b2320"/>
+    <circle cx="78" cy="24" r="13" fill="#2b2320"/>
+    <ellipse cx="30" cy="56" rx="13" ry="10" fill="#2b2320" transform="rotate(-24 30 56)"/>
+    <ellipse cx="70" cy="56" rx="13" ry="10" fill="#2b2320" transform="rotate(24 70 56)"/>
+    <ellipse cx="50" cy="84" rx="17" ry="12" fill="#2b2320"/>
+    <path d="M40 52q6 7 13 0M57 52q6 7 13 0" stroke="#fffdf8" stroke-width="2.6"
+          stroke-linecap="round" fill="none"/>
+  </symbol>
+
+  <!-- the three mountain ridges, reused by the page and by the gate doors -->
+  <defs>
+    <!-- Broad, smooth ridges. They get stretched vertically, so few peaks
+         and gentle curves — tight zig-zags would render as spikes. -->
+    <path id="p-far"  d="M0 150V92Q160 18 322 80Q470 136 588 54Q700-22 838 62Q980 148 1092 74Q1150 36 1200 58V150Z"/>
+    <path id="p-mid"  d="M0 150V114Q180 54 348 106Q500 152 640 92Q790 28 928 100Q1060 168 1200 96V150Z"/>
+    <path id="p-near" d="M0 150v-22Q150 98 316 126Q470 152 618 120Q788 84 942 124Q1080 160 1200 118V150Z"/>
+  </defs>
+</svg>
+
+<!-- ══════════════════════════════════════════════════════════
+     THE WORLD — sky, sun, clouds, mountains, bamboo
+════════════════════════════════════════════════════════════ -->
+<div class="scenery" aria-hidden="true">
+  <!-- four skies, cross-faded by scroll position: dawn → day → dusk → night -->
+  <div class="sky sky--dawn"  id="skyDawn"></div>
+  <div class="sky sky--day"   id="skyDay"></div>
+  <div class="sky sky--dusk"  id="skyDusk"></div>
+  <div class="sky sky--night" id="skyNight"></div>
+
+  <div class="stars" id="stars"></div>
+  <div class="shooting" id="shooting"></div>
+  <div class="moon" id="moon"></div>
+  <div class="sun" id="sun"></div>
+  <div class="fireflies" id="fireflies"></div>
+
+  <div class="clouds">
+    <span class="cloud cloud--1"></span>
+    <span class="cloud cloud--2"></span>
+    <span class="cloud cloud--3"></span>
+    <span class="cloud cloud--4"></span>
+  </div>
+
+  <div class="birds">
+    <span class="bird bird--1"></span>
+    <span class="bird bird--2"></span>
+    <span class="bird bird--3"></span>
+  </div>
+
+  <div class="range">
+    <svg class="ridge ridge--far"  viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-far"/></svg>
+    <svg class="ridge ridge--mid"  viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-mid"/></svg>
+    <svg class="ridge ridge--near" viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-near"/></svg>
+    <div class="ground"></div>
+    <div class="nightfall" id="nightfall"></div>
+  </div>
+
+  <!-- bamboo along the edges -->
+  <div class="bamboo bamboo--l">
+    <span class="stalk" style="--x:6px;  --w:15px; --o:.85; --h:9"></span>
+    <span class="stalk" style="--x:30px; --w:10px; --o:.55; --h:7"></span>
+    <span class="stalk" style="--x:48px; --w:7px;  --o:.32; --h:11"></span>
+  </div>
+  <div class="bamboo bamboo--r">
+    <span class="stalk" style="--x:8px;  --w:14px; --o:.8;  --h:8"></span>
+    <span class="stalk" style="--x:32px; --w:9px;  --o:.5;  --h:10"></span>
+    <span class="stalk" style="--x:52px; --w:6px;  --o:.3;  --h:6"></span>
+  </div>
+
+  <div class="mist"></div>
+</div>
+
+<!-- ══════════════ AMBIENT LAYERS ══════════════ -->
+<canvas id="petals" aria-hidden="true"></canvas>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="trail" aria-hidden="true"></div>
+
+<!-- a panda who rolls past now and then -->
+<div class="roller" id="roller" aria-hidden="true">
+  <svg class="panda"><use href="#panda-roll"/></svg>
+</div>
+
+<!-- ══════════════ THE GATE ══════════════
+     Stage 1: countdown  →  Stage 2: password  →  Stage 3: doors open
+-->
+<div id="gate" class="gate">
+
+  <!-- Each door carries the same range, aligned so the hills read as
+       one continuous horizon — then split apart when the gate opens. -->
+  <div class="gate__door gate__door--l" aria-hidden="true">
+    <div class="gate__hills">
+      <svg class="ridge ridge--far"  viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-far"/></svg>
+      <svg class="ridge ridge--mid"  viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-mid"/></svg>
+      <svg class="ridge ridge--near" viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-near"/></svg>
+      <div class="ground"></div>
+    </div>
+  </div>
+  <div class="gate__door gate__door--r" aria-hidden="true">
+    <div class="gate__hills">
+      <svg class="ridge ridge--far"  viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-far"/></svg>
+      <svg class="ridge ridge--mid"  viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-mid"/></svg>
+      <svg class="ridge ridge--near" viewBox="0 0 1200 150" preserveAspectRatio="none"><use href="#p-near"/></svg>
+      <div class="ground"></div>
+    </div>
+  </div>
+  <div class="gate__seam" aria-hidden="true"></div>
+
+  <div class="gate__stage" id="gateStage">
+
+    <!-- animated border lines -->
+    <div class="gate__frame gate__frame--outer" aria-hidden="true">
+      <i class="l l--t"></i><i class="l l--r"></i><i class="l l--b"></i><i class="l l--l"></i>
+    </div>
+    <div class="gate__frame gate__frame--inner" aria-hidden="true">
+      <i class="l l--t"></i><i class="l l--r"></i><i class="l l--b"></i><i class="l l--l"></i>
+    </div>
+    <span class="gate__corner gate__corner--tl" aria-hidden="true"></span>
+    <span class="gate__corner gate__corner--tr" aria-hidden="true"></span>
+    <span class="gate__corner gate__corner--bl" aria-hidden="true"></span>
+    <span class="gate__corner gate__corner--br" aria-hidden="true"></span>
+
+    <!-- glowing heart being traced -->
+    <canvas class="gate__heart" id="gateHeart" aria-hidden="true"></canvas>
+
+    <!-- the panda sleeps until it's time, then wakes up -->
+    <button class="panda-wrap gate__panda" id="gatePanda" type="button" aria-label="Panda">
+      <span class="zzz" aria-hidden="true"><i>z</i><i>z</i><i>z</i></span>
+      <svg class="panda panda--sleep"><use href="#panda-sleep"/></svg>
+      <svg class="panda panda--awake"><use href="#panda"/></svg>
+      <span class="panda__say" id="gatePandaSay"></span>
+    </button>
+
+    <!-- ── stage 1: waiting for the countdown ── -->
+    <div class="gate__panel is-active" id="gateWaiting">
+      <p class="gate__eyebrow" id="gwEyebrow"></p>
+      <h1 class="gate__title" id="gwTitle"></h1>
+      <div class="clock clock--gate" id="gateClock">
+        <div class="clock__unit"><b id="gwD">--</b><span>days</span></div>
+        <div class="clock__sep">:</div>
+        <div class="clock__unit"><b id="gwH">--</b><span>hours</span></div>
+        <div class="clock__sep">:</div>
+        <div class="clock__unit"><b id="gwM">--</b><span>minutes</span></div>
+        <div class="clock__sep">:</div>
+        <div class="clock__unit"><b id="gwS">--</b><span>seconds</span></div>
+      </div>
+      <p class="gate__hint" id="gwHint"></p>
+    </div>
+
+    <!-- ── stage 2: the password ── -->
+    <div class="gate__panel" id="gatePass">
+      <p class="gate__eyebrow" id="lockEyebrow"></p>
+      <h1 class="gate__title" id="lockTitle"></h1>
+      <p class="gate__hint" id="lockHint"></p>
+      <form class="lock__form" id="lockForm" autocomplete="off">
+        <input class="lock__input" id="lockInput" type="text" spellcheck="false"
+               autocapitalize="characters" autocomplete="off" aria-label="Password" />
+        <button class="lock__btn" id="lockBtn" type="submit"></button>
+      </form>
+      <p class="lock__error" id="lockError" role="alert"></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ CHROME ══════════════ -->
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+<nav class="dots" id="dots" aria-label="Sections"></nav>
+
+<button class="music" id="musicBtn" type="button" aria-pressed="false" hidden>
+  <span class="music__icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  <span class="music__label" id="musicLabel"></span>
+</button>
+<audio id="audio" loop preload="none"></audio>
+
+<main id="app" class="app">
+
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero__hearts" id="heroHearts" aria-hidden="true"></div>
+    <div class="hero__content">
+      <p class="hero__greeting reveal" id="heroGreeting"></p>
+      <h1 class="hero__world" id="heroWorld"><span class="hero__worldInner"></span></h1>
+      <p class="hero__tagline" id="heroTagline"></p>
+      <div class="hero__rule" aria-hidden="true"><span></span><svg viewBox="0 0 32 29"><path d="M16 29S1 19.5 1 9.9A8.9 8.9 0 0 1 16 4a8.9 8.9 0 0 1 15 5.9C31 19.5 16 29 16 29z"/></svg><span></span></div>
+      <p class="hero__forName" id="heroForName"></p>
+      <p class="hero__subtitle" id="heroSubtitle"></p>
+    </div>
+
+    <!-- a panda sitting on the hill, watching -->
+    <button class="panda-wrap hero__panda" id="heroPanda" type="button" aria-label="Panda">
+      <svg class="panda"><use href="#panda"/></svg>
+      <span class="panda__say" id="heroPandaSay"></span>
+    </button>
+
+    <div class="hero__scroll" id="heroScroll" aria-hidden="true"><span></span><em></em></div>
+  </section>
+
+  <!-- ══════════════ COUNTDOWN ══════════════ -->
+  <section class="section countdown" id="countdown">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="cdEyebrow"></p>
+      <h2 class="h2 reveal" id="cdTitle"></h2>
+      <div class="clock reveal" id="clock">
+        <div class="clock__unit"><b id="cdD">--</b><span>days</span></div>
+        <div class="clock__sep">:</div>
+        <div class="clock__unit"><b id="cdH">--</b><span>hours</span></div>
+        <div class="clock__sep">:</div>
+        <div class="clock__unit"><b id="cdM">--</b><span>minutes</span></div>
+        <div class="clock__sep">:</div>
+        <div class="clock__unit"><b id="cdS">--</b><span>seconds</span></div>
+      </div>
+      <p class="lead reveal" id="cdMessage"></p>
+    </div>
+  </section>
+
+  <!-- ══════════════ THE SERIES ══════════════ -->
+  <section class="section story" id="story">
+    <!-- a panda peeks in at the top of the story -->
+    <div class="peeker" aria-hidden="true"><svg class="panda"><use href="#panda-peek"/></svg></div>
+    <div class="wrap">
+      <p class="eyebrow reveal">The series</p>
+      <h2 class="h2 reveal">Our story, chapter by chapter</h2>
+      <p class="lead reveal">Read them in order. I wrote them that way.</p>
+    </div>
+    <div class="chapters" id="chapters"></div>
+  </section>
+
+  <!-- ══════════════ GALLERY ══════════════ -->
+  <section class="section gallery" id="gallery">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="galEyebrow"></p>
+      <h2 class="h2 reveal" id="galTitle"></h2>
+      <p class="lead reveal" id="galSubtitle"></p>
+    </div>
+    <div class="polaroids" id="polaroids"></div>
+  </section>
+
+  <!-- ══════════════ REAL PANDAS ══════════════ -->
+  <section class="section pandas" id="pandas">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="pgEyebrow"></p>
+      <h2 class="h2 reveal" id="pgTitle"></h2>
+      <p class="lead reveal" id="pgSubtitle"></p>
+    </div>
+    <div class="pandaGrid" id="pandaGrid"></div>
+    <p class="credit" id="pgCredit"></p>
+  </section>
+
+  <!-- ══════════════ REASONS ══════════════ -->
+  <section class="section reasons" id="reasons">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="rsEyebrow"></p>
+      <h2 class="h2 reveal" id="rsTitle"></h2>
+      <p class="lead reveal" id="rsSubtitle"></p>
+    </div>
+    <div class="cards" id="reasonCards"></div>
+  </section>
+
+  <!-- ══════════════ BIRTHDAY ══════════════ -->
+  <section class="section birthday" id="birthday">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="bdEyebrow"></p>
+      <h2 class="h2 reveal" id="bdTitle"></h2>
+      <p class="lead reveal" id="bdSubtitle"></p>
+
+      <button class="panda-wrap birthday__panda reveal" type="button" aria-label="Panda">
+        <span class="panda__hat" aria-hidden="true"></span>
+        <svg class="panda"><use href="#panda"/></svg>
+        <span class="panda__say" id="cakePandaSay"></span>
+      </button>
+
+      <div class="cake reveal" id="cake">
+        <div class="cake__candles" id="candles"></div>
+        <div class="cake__tier cake__tier--top"></div>
+        <div class="cake__tier cake__tier--mid"></div>
+        <div class="cake__tier cake__tier--base"></div>
+        <div class="cake__plate"></div>
+      </div>
+
+      <div class="wish" id="wish" hidden>
+        <h3 class="wish__title" id="wishTitle"></h3>
+        <p class="wish__msg" id="wishMsg"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ PROPOSAL ══════════════ -->
+  <section class="section proposal" id="proposal">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="prEyebrow"></p>
+      <div class="buildup" id="buildup"></div>
+
+      <div class="ring reveal" aria-hidden="true">
+        <svg viewBox="0 0 120 140">
+          <defs>
+            <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ffe0a8"/><stop offset="45%" stop-color="#e5a545"/><stop offset="100%" stop-color="#b57c28"/>
+            </linearGradient>
+            <linearGradient id="dia" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#ffbcd4"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring__band" cx="60" cy="92" r="36" fill="none" stroke="url(#gold)" stroke-width="7"/>
+          <path class="ring__stone" d="M60 20 L78 44 L60 74 L42 44 Z" fill="url(#dia)"/>
+          <path class="ring__facet" d="M42 44 H78 M60 20 V74" stroke="rgba(180,90,130,.45)" stroke-width="1.2" fill="none"/>
+        </svg>
+        <span class="ring__sparkle" style="--d:0s"></span>
+        <span class="ring__sparkle" style="--d:.9s"></span>
+        <span class="ring__sparkle" style="--d:1.7s"></span>
+      </div>
+
+      <h2 class="question" id="question"></h2>
+
+      <div class="answers" id="answers">
+        <button class="btn btn--yes" id="btnYes" type="button"></button>
+        <button class="btn btn--no" id="btnNo" type="button"></button>
+      </div>
+      <p class="tease" id="tease" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- ══════════════ FINALE ══════════════ -->
+  <section class="section finale" id="finale">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="fnEyebrow"></p>
+      <div class="letter reveal">
+        <div class="letter__seal" aria-hidden="true">P</div>
+        <h2 class="letter__title" id="fnTitle"></h2>
+        <div class="letter__body" id="fnBody"></div>
+        <p class="letter__sign" id="fnSign"></p>
+        <p class="letter__by" id="fnBy"></p>
+      </div>
+      <p class="footer" id="fnFooter"></p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════ YES OVERLAY ══════════════ -->
+<div class="yesover" id="yesover" hidden>
+  <div class="yesover__inner">
+    <div class="panda-wrap yesover__panda" aria-hidden="true">
+      <svg class="panda"><use href="#panda"/></svg>
+    </div>
+    <h2 class="yesover__title" id="yesTitle"></h2>
+    <p class="yesover__msg" id="yesMsg"></p>
+    <button class="btn btn--ghost" id="yesClose" type="button">…and forever starts now</button>
+  </div>
+</div>
+
+<!-- ══════════════ LIGHTBOX ══════════════ -->
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox__close" id="lbClose" type="button" aria-label="Close">&times;</button>
+  <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" type="button" aria-label="Previous">&#8249;</button>
+  <figure class="lightbox__fig">
+    <img id="lbImg" alt="" />
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+  <button class="lightbox__nav lightbox__nav--next" id="lbNext" type="button" aria-label="Next">&#8250;</button>
+</div>
+
+<script src="js/content.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

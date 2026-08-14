@@ -1,0 +1,5 @@
+# The repo is public so GitHub Pages can serve it, but this page is not
+# meant for search engines. Between this file and the noindex meta tag in
+# index.html, only someone with the direct link will find it.
+User-agent: *
+Disallow: /
