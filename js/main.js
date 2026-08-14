@@ -361,6 +361,168 @@
   }
 
   /* =========================================================
+     3c-i. A little toast, bottom of the screen
+  ========================================================= */
+  let toastTimer = null;
+  function toast(text, ms) {
+    const el = $('#toast');
+    if (!el || !text) return;
+    el.textContent = text;
+    el.hidden = false;
+    requestAnimationFrame(() => el.classList.add('show'));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => { el.hidden = true; }, 450);
+    }, ms || 4200);
+  }
+
+  /* =========================================================
+     3c-ii. OUR PLACES — the map
+  ========================================================= */
+  function buildMap() {
+    const M = C.map;
+    if (!M || !M.places || !M.places.length) { $('#ourmap').hidden = true; return; }
+
+    $('#mpEyebrow').textContent  = M.eyebrow;
+    $('#mpTitle').textContent    = M.title;
+    $('#mpSubtitle').textContent = M.subtitle;
+
+    const host = $('#atlasPins');
+    const pins = [];
+
+    M.places.forEach((place) => {
+      const p = document.createElement('button');
+      p.type = 'button';
+      p.className = 'pin';
+      p.style.left = place.x + '%';
+      p.style.top  = place.y + '%';
+      p.setAttribute('aria-label', place.name);
+      p.innerHTML =
+        '<span class="pin__pulse"></span>' +
+        '<span class="pin__card"><b class="pin__name"></b><span class="pin__note"></span></span>';
+      $('.pin__name', p).textContent = place.name;
+      $('.pin__note', p).textContent = place.note;
+
+      p.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = !p.classList.contains('is-open');
+        pins.forEach((o) => o.classList.remove('is-open'));
+        p.classList.toggle('is-open', open);
+        if (open) {
+          const r = p.getBoundingClientRect();
+          FX.burst(r.left + r.width / 2, r.top, 12, 5);
+        }
+      });
+      host.appendChild(p);
+      pins.push(p);
+    });
+
+    document.addEventListener('click', () => pins.forEach((p) => p.classList.remove('is-open')));
+  }
+
+  /* =========================================================
+     3c-iii. THE QUIZ
+  ========================================================= */
+  function buildQuiz() {
+    const Q = C.quiz;
+    if (!Q || !Q.questions || !Q.questions.length) { $('#quiz').hidden = true; return; }
+
+    $('#qzEyebrow').textContent    = Q.eyebrow;
+    $('#qzTitle').textContent      = Q.title;
+    $('#qzSubtitle').textContent   = Q.subtitle;
+    $('#qzScoreLabel').textContent = Q.scoreLabel || 'right';
+
+    const host = $('#quizList');
+    let right = 0, answered = 0;
+
+    Q.questions.forEach((item) => {
+      const card = document.createElement('div');
+      card.className = 'qz reveal';
+      card.innerHTML = '<p class="qz__q"></p><div class="qz__opts"></div><p class="qz__reply"></p>';
+      $('.qz__q', card).textContent     = item.q;
+      $('.qz__reply', card).textContent = item.reply || '';
+
+      const opts = $('.qz__opts', card);
+      item.options.forEach((label, oi) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'qz__opt';
+        b.textContent = label;
+        b.addEventListener('click', () => {
+          if (card.classList.contains('is-answered')) return;
+          card.classList.add('is-answered');
+
+          $$('.qz__opt', card).forEach((o, i) => {
+            if (i === item.answer) o.classList.add('is-right');
+            else if (i === oi) o.classList.add('is-wrong');
+          });
+
+          answered++;
+          if (oi === item.answer) {
+            right++;
+            $('#qzScore').textContent = String(right);
+            const r = b.getBoundingClientRect();
+            FX.burst(r.left + r.width / 2, r.top + r.height / 2, 16, 6);
+          }
+          if (answered === Q.questions.length && Q.done) {
+            const d = $('#qzDone');
+            d.textContent = Q.done;
+            d.hidden = false;
+            FX.rain(90);
+          }
+        });
+        opts.appendChild(b);
+      });
+      host.appendChild(card);
+    });
+  }
+
+  /* =========================================================
+     3c-iv. TIME CAPSULE — sealed until a date
+  ========================================================= */
+  function buildCapsule() {
+    const T = C.timeCapsule;
+    const m = T && String(T.openOn || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return;                         // no date set — section stays hidden
+
+    const open = new Date(+m[1], +m[2] - 1, +m[3], 0, 0, 0, 0);
+    const sec  = $('#capsule');
+    const box  = $('#capsuleBox');
+    sec.hidden = false;
+
+    $('#tcEyebrow').textContent = T.eyebrow;
+    $('#tcNote').textContent    = T.note;
+
+    const ready = open.getTime() <= Date.now();
+
+    if (!ready) {
+      $('#tcTitle').textContent = T.lockedTitle;
+      $('#tcHint').textContent  = T.lockedHint;
+      const days = Math.ceil((open - Date.now()) / 86400000);
+      $('#tcTimer').innerHTML =
+        (T.unlocksIn || 'opens in') + ' <b>' + days + '</b> ' + (T.dayWord || 'days');
+      return;
+    }
+
+    // The day has come.
+    $('#tcTitle').textContent = T.openTitle;
+    $('#tcHint').textContent  = '';
+    $('#tcTimer').textContent = '';
+    $('#tcLock').textContent  = '🤍';
+    const btn = $('#tcBtn');
+    btn.textContent = T.button || 'Open it';
+    btn.hidden = false;
+    btn.addEventListener('click', () => {
+      box.classList.add('is-open');
+      btn.hidden = true;
+      FX.rain(140);
+      const r = box.getBoundingClientRect();
+      FX.burst(r.left + r.width / 2, r.top + 60, 80, 12);
+    });
+  }
+
+  /* =========================================================
      3d. SCRATCH TO REVEAL
   ========================================================= */
   function buildScratch() {
@@ -481,6 +643,73 @@
     btn.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent(R.message || '');
     btn.textContent = R.label || 'Reply';
     btn.hidden = false;
+  }
+
+  /* =========================================================
+     3f. YOUR VOICE — appears only once the mp3 exists
+  ========================================================= */
+  function buildVoice() {
+    const V = C.voice;
+    const btn = $('#voiceBtn');
+    const audio = $('#voiceAudio');
+    if (!V || !V.src || !btn) return;
+
+    const label = $('#voiceLabel');
+    const cap = $('#voiceCap');
+    label.textContent = V.label || 'Hear me say it';
+
+    audio.preload = 'metadata';
+    audio.src = V.src;
+    audio.addEventListener('loadedmetadata', () => {
+      btn.hidden = false;
+      if (V.caption) { cap.textContent = V.caption; cap.hidden = false; }
+    }, { once: true });
+    audio.addEventListener('error', () => { btn.hidden = true; cap.hidden = true; });
+
+    audio.addEventListener('ended', () => {
+      btn.classList.remove('is-playing');
+      label.textContent = V.label || 'Hear me say it';
+    });
+
+    btn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play().then(() => {
+          btn.classList.add('is-playing');
+          label.textContent = V.playing || 'Playing…';
+        }).catch(() => {});
+      } else {
+        audio.pause();
+        btn.classList.remove('is-playing');
+        label.textContent = V.label || 'Hear me say it';
+      }
+    });
+  }
+
+  /* =========================================================
+     3g. PRINT THE LETTER
+  ========================================================= */
+  function buildPrint() {
+    const P = C.print;
+    const btn = $('#printBtn');
+    if (!P || P.enabled === false || !btn) return;
+    btn.textContent = P.label || 'Print this letter';
+    btn.hidden = false;
+    btn.addEventListener('click', () => window.print());
+  }
+
+  /* =========================================================
+     3h. TIME-OF-DAY GREETING
+  ========================================================= */
+  function buildGreeting() {
+    const G = C.greeting;
+    const el = $('#heroHello');
+    if (!G || G.enabled === false || !el) return;
+    const h = new Date().getHours();
+    el.textContent =
+      h < 5  ? (G.night     || '') :
+      h < 12 ? (G.morning   || '') :
+      h < 17 ? (G.afternoon || '') :
+      h < 22 ? (G.evening   || '') : (G.night || '');
   }
 
   /* =========================================================
@@ -816,8 +1045,13 @@
     wirePanda('.birthday__panda', '#cakePandaSay', C.panda.cakeSays);
 
     // A panda rolls across the bottom of the screen now and then.
+    const R = C.roller || {};
     const roller = $('#roller');
-    if (roller && !FX.reduced) {
+    if (roller && !FX.reduced && R.enabled !== false) {
+      const first = (R.firstAfter != null ? R.firstAfter : 5) * 1000;
+      const lo    = (R.everyMin   != null ? R.everyMin   : 16) * 1000;
+      const hi    = (R.everyMax   != null ? R.everyMax   : 34) * 1000;
+
       const send = () => {
         roller.classList.remove('go');
         void roller.offsetWidth;
@@ -825,9 +1059,22 @@
       };
       setTimeout(function again() {
         if (document.body.classList.contains('is-open')) send();
-        // somewhere between 40s and 80s later, do it again
-        setTimeout(again, 40000 + Math.random() * 40000);
-      }, 14000);
+        setTimeout(again, lo + Math.random() * Math.max(0, hi - lo));
+      }, first);
+    }
+
+    /* --- the easter egg: keep tapping the sleeping panda --- */
+    const E = C.easterEgg;
+    const gatePanda = $('#gatePanda');
+    if (E && E.message && gatePanda) {
+      const need = E.taps || 7;
+      let taps = 0;
+      gatePanda.addEventListener('click', () => {
+        if (++taps !== need) return;
+        toast(E.message, 7000);
+        FX.rain(120);
+        FX.burst(window.innerWidth / 2, window.innerHeight / 2, 90, 12);
+      });
     }
   }
 
@@ -1283,9 +1530,15 @@
     buildPandaGallery();
     buildGame();
     buildOpenWhen();
+    buildMap();
+    buildQuiz();
+    buildCapsule();
     buildScratch();
     buildConstellation();
     buildReply();
+    buildVoice();
+    buildPrint();
+    buildGreeting();
     buildReasons();
     buildCake();
     buildProposal();

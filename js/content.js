@@ -70,6 +70,31 @@ const CONTENT = {
     scrollHint: "scroll gently",
   },
 
+  /* ---------- GREETING BY TIME OF DAY -----------------------
+     Reads the clock on her phone and greets her accordingly,
+     just above the big PREM. Set enabled:false to turn it off.
+  --------------------------------------------------------- */
+  greeting: {
+    enabled: true,
+    morning:   "Good morning, Preeti.",
+    afternoon: "Good afternoon, Preeti.",
+    evening:   "Good evening, Preeti.",
+    night:     "You're up late, Preeti.",
+  },
+
+  /* ---------- THE ROLLING PANDA ----------------------------
+     A panda rolls across the bottom of the screen now and then.
+     firstAfter = seconds before the first one.
+     everyMin / everyMax = seconds between the ones after that.
+     Set enabled:false to stop it completely.
+  --------------------------------------------------------- */
+  roller: {
+    enabled: true,
+    firstAfter: 5,
+    everyMin: 16,
+    everyMax: 34,
+  },
+
   /* ---------- US, SO FAR ------------------------------------
      A live counter that ticks UP from the day you two started.
 
@@ -78,7 +103,7 @@ const CONTENT = {
      Leave it as "" and this whole section quietly disappears.
   --------------------------------------------------------- */
   together: {
-    since: "",
+    since: "2026-05-13",
     eyebrow: "Us, so far",
     title: "How long you've been stuck with me",
     message:
@@ -317,6 +342,82 @@ const CONTENT = {
       "Then that's it. That's the whole plan. You and me, for as long as we get.",
   },
 
+  /* ---------- OUR PLACES (the map) --------------------------
+     A hand-drawn map of the places that matter. x and y are
+     percentages across the map, so just nudge the numbers until
+     the pins sit where you want them.
+  --------------------------------------------------------- */
+  map: {
+    eyebrow: "The atlas",
+    title: "Our places",
+    subtitle: "Tap a pin. Every one of these is a room in our world.",
+    places: [
+      { name: "Where we met",       x: 22, y: 34, note: "I had no idea what was about to happen to me." },
+      { name: "Our first proper date", x: 58, y: 22, note: "I changed my shirt four times. You noticed nothing. Perfect." },
+      { name: "The place we always go back to", x: 40, y: 62, note: "Same order every time. I'd never want to change it." },
+      { name: "Your favourite spot", x: 74, y: 55, note: "You light up here. I mostly just watch you light up." },
+      { name: "Home",               x: 55, y: 82, note: "Wherever you happen to be standing." },
+    ],
+  },
+
+  /* ---------- THE QUIZ ---------- */
+  quiz: {
+    eyebrow: "A small exam",
+    title: "How well do you know us?",
+    subtitle: "No pressure. There's only one right answer to the last one.",
+    scoreLabel: "right",
+    questions: [
+      {
+        q: "What's the name of our world?",
+        options: ["PREM", "PREETI", "Something I've forgotten"],
+        answer: 0,
+        reply: "Obviously. It was never going to be anything else.",
+      },
+      {
+        q: "Who says sorry first, usually?",
+        options: ["Me", "You", "Whoever misses the other one more"],
+        answer: 2,
+        reply: "Correct. And it's usually me, and we both know it.",
+      },
+      {
+        q: "What am I doing right now?",
+        options: ["Sleeping", "Thinking about you", "Both, somehow"],
+        answer: 2,
+        reply: "You know me far too well.",
+      },
+      {
+        q: "How long am I planning to keep this up?",
+        options: ["A while", "A very long while", "Forever"],
+        answer: 2,
+        reply: "Right answer. Only answer.",
+      },
+    ],
+    done: "You passed. You were always going to pass.",
+  },
+
+  /* ---------- TIME CAPSULE ----------------------------------
+     A letter that refuses to open until the date you choose.
+     Set the date, write the note, and she'll have to come back.
+     Leave openOn as "" to hide the whole section.
+  --------------------------------------------------------- */
+  timeCapsule: {
+    // ►►► PICK A DATE ◄◄◄  "YYYY-MM-DD" — your anniversary, say
+    openOn: "2027-05-13",
+    eyebrow: "Not for today",
+    lockedTitle: "A letter you can't read yet.",
+    lockedHint:
+      "I've sealed this one. It opens by itself on the day, and not a moment sooner. " +
+      "Come back then — I'll still be here, and so will it.",
+    unlocksIn: "opens in",
+    dayWord: "days",
+    openTitle: "It's time. Open it.",
+    button: "Break the seal",
+    note:
+      "If you're reading this, a whole year has happened to us since I built this world, " +
+      "and I'm willing to bet it was a good one. I hope I still make you laugh. " +
+      "I hope you still pick me. I already know I'd pick you.",
+  },
+
   /* ---------- SCRATCH TO REVEAL ---------- */
   scratch: {
     eyebrow: "One last secret",
@@ -351,7 +452,7 @@ const CONTENT = {
      Leave it as "" and the button quietly disappears.
   --------------------------------------------------------- */
   reply: {
-    whatsapp: "",
+    whatsapp: "919588874415",
     label: "Say something back",
     // What gets pre-typed into her chat with you
     message: "I found our world. Come here right now.",
@@ -404,6 +505,33 @@ const CONTENT = {
     ],
   },
 
+  /* ---------- YOUR VOICE ------------------------------------
+     Record yourself reading the letter on your phone, save it as
+     an mp3 at this path, and a play button appears under the
+     letter. If the file isn't there, the button stays hidden.
+  --------------------------------------------------------- */
+  voice: {
+    src: "assets/music/voice.mp3",
+    label: "Hear me say it",
+    playing: "Listening…",
+    caption: "Best with headphones, and with nobody else around.",
+  },
+
+  /* ---------- PRINT ---------- */
+  print: {
+    enabled: true,
+    label: "Print this letter",
+  },
+
+  /* ---------- EASTER EGG ------------------------------------
+     Tap the sleeping panda on the gate this many times and it
+     tells her a secret. She'll only ever find this by fiddling.
+  --------------------------------------------------------- */
+  easterEgg: {
+    taps: 7,
+    message: "You found it. Nobody else will ever see this one. I love you most.",
+  },
+
   /* ---------- MUSIC ---------- */
   music: {
     // Put an mp3 at this path. If the file isn't there, the button
@@ -422,9 +550,12 @@ const CONTENT = {
     { id: "game", label: "Find the pairs" },
     { id: "reasons", label: "Reasons" },
     { id: "openwhen", label: "Open when…" },
+    { id: "ourmap", label: "Our places" },
+    { id: "quiz", label: "The quiz" },
     { id: "birthday", label: "Birthday" },
     { id: "proposal", label: "The question" },
     { id: "scratch", label: "Secret" },
+    { id: "capsule", label: "Time capsule" },
     { id: "starname", label: "The stars" },
     { id: "finale", label: "Letter" },
   ],

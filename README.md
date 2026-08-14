@@ -56,6 +56,22 @@ in `content.js` to a minute from now, e.g. `"2026-08-15T21:30"`.
 
 ---
 
+## 🎧 Three files to drop in
+
+None of these need code. Drop the file in and the feature turns itself on;
+leave it out and the button simply doesn't appear.
+
+| File | Where | What it turns on |
+|---|---|---|
+| Your song | `assets/music/our-song.mp3` | The music toggle, bottom-left |
+| **Your voice** | `assets/music/voice.mp3` | A **"Hear me say it"** button under the letter — record yourself reading it on your phone |
+| Her photos | `photos/` | The six story chapters and the polaroid wall (see [photos/README.md](photos/README.md)) |
+
+The photos are the big one. Everything else on this site is decoration
+around them.
+
+---
+
 ## ⚠️ Two blanks to fill in
 
 Both of these are in [`js/content.js`](js/content.js). Until you fill them
@@ -133,7 +149,10 @@ gently), and she can mute it any time from the bottom-left button.
 | **Open when…** | Six sealed envelopes with wax seals — *open when you miss me*, *open when you've had a bad day*, and so on. She taps one open when she needs it; the flap folds back and the note unrolls. Meant to be saved, not read all at once. |
 | **Birthday** | A CSS cake with real flickering candles. She taps each flame to blow it out; the last one triggers confetti and your birthday message. |
 | **The question** | The proposal. The "Let me think…" button runs away from her cursor (and her finger), getting shyer each time, while YES grows. YES takes over the screen. |
+| **Our places** | An illustrated map with pins on the places that matter. Tap a pin for the story. Move a pin by nudging its `x`/`y` percentages. |
+| **The quiz** | Four questions about you two, with a reply to each answer. |
 | **The secret** | A scratch card she rubs away with her finger to uncover one last line. |
+| **Time capsule** | A wax-sealed letter that **refuses to open** until the date in `timeCapsule.openOn`. Until then it just counts down the days. She'll have to come back. |
 | **The letter** | Your closing letter on paper, sealed with a P — plus a one-tap reply button that opens WhatsApp to you. |
 
 Running throughout: the dawn sky and mountains sit behind everything, so
@@ -170,10 +189,17 @@ photographer, licence and source URL for every photo. To swap one out,
 drop your own image in as `p3.jpg` (etc.) and remove that line from the
 attribution file.
 
-### One more thing
+### Small things she'll notice
 
-**Tapping anywhere on the page releases a heart balloon** that floats up
-and away. Buttons, cards and candles still do their own jobs.
+- **Tapping anywhere releases a heart balloon** that floats up and away
+- The site **greets her by time of day** — good morning, good evening, or
+  *"you're up late, Preeti"* after midnight
+- The **browser tab asks her to come back** when she switches away
+- **Hidden:** tap the sleeping panda on the gate **seven times**. Only
+  someone who fiddles will ever find it. Change the message in
+  `content.js` → `easterEgg`
+- A **print button** under the letter prints just the letter, cleanly, with
+  none of the site around it — so she can keep a paper copy
 
 All five are drawn in SVG right inside `index.html` — no image files, so
 nothing to load and nothing to break. The tappable ones jump, pop hearts,

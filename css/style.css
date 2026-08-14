@@ -955,6 +955,177 @@ body.is-open .music{ opacity:1; }
   100%{ opacity:0; transform:translateY(-92vh) scale(1.06) rotate(-5deg) }
 }
 
+/* ══════════════ TOAST ══════════════ */
+.toast{
+  position:fixed; left:50%; bottom:32px; translate:-50% 0; z-index:95;
+  max-width:min(90vw,42ch); padding:14px 22px; border-radius:999px;
+  background:var(--paper); border:1px solid var(--line); color:var(--forest);
+  font-family:var(--body); font-size:17px; text-align:center;
+  box-shadow:0 18px 40px -20px rgba(30,50,45,.8);
+  opacity:0; transition:opacity .4s var(--ease), translate .4s var(--ease);
+}
+.toast.show{ opacity:1; translate:-50% -10px; }
+
+/* ══════════════ TIME-OF-DAY GREETING ══════════════ */
+.hero__hello{
+  margin:0 0 10px; font-family:var(--script);
+  font-size:clamp(24px,5vw,38px); line-height:1; color:var(--rose-deep);
+  opacity:0; animation:helloIn 1.2s var(--ease) .2s forwards;
+}
+@keyframes helloIn{ from{ opacity:0; translate:0 12px } to{ opacity:1; translate:0 0 } }
+
+/* ══════════════ OUR PLACES ══════════════ */
+.atlas{
+  position:relative; margin:48px auto 0; width:min(100% - 20px, 780px);
+  aspect-ratio:3/2; border-radius:22px; overflow:hidden;
+  background:var(--paper); border:1px solid var(--line);
+  box-shadow:0 26px 52px -28px rgba(50,80,65,.75);
+}
+.atlas__paper{ position:absolute; inset:0; width:100%; height:100%; }
+.atlas__sea  { fill:#eaf4f2; }
+.atlas__land { fill:#dcecd8; stroke:rgba(79,127,87,.4); stroke-width:2; }
+.atlas__river{ stroke:#a8cfe0; stroke-width:5; stroke-linecap:round; }
+.atlas__road { stroke:rgba(180,150,110,.55); stroke-width:3; stroke-dasharray:9 7; stroke-linecap:round; }
+html.is-night .atlas__sea { fill:#16242c; }
+html.is-night .atlas__land{ fill:#1e3327; stroke:rgba(140,190,150,.35); }
+
+.atlas__pins{ position:absolute; inset:0; }
+.pin{
+  position:absolute; translate:-50% -100%; padding:0; border:0; background:none;
+  width:26px; height:34px; z-index:2;
+}
+.pin::before{ /* the pin head */
+  content:""; position:absolute; inset:0 auto auto 50%; translate:-50% 0;
+  width:22px; height:22px; border-radius:50% 50% 50% 0; rotate:-45deg;
+  background:linear-gradient(145deg,var(--rose),var(--rose-deep));
+  box-shadow:0 5px 12px -4px rgba(120,40,75,.9);
+  transition:scale .3s var(--ease);
+}
+.pin::after{ /* the dot in the middle */
+  content:""; position:absolute; top:7px; left:50%; translate:-50% 0;
+  width:8px; height:8px; border-radius:50%; background:var(--paper);
+}
+.pin:hover::before,.pin.is-open::before{ scale:1.22; }
+.pin__pulse{
+  position:absolute; top:4px; left:50%; translate:-50% 0;
+  width:18px; height:18px; border-radius:50%; border:2px solid var(--rose);
+  animation:pinPulse 2.4s ease-out infinite; opacity:0;
+}
+@keyframes pinPulse{ 0%{ opacity:.8; scale:.5 } 100%{ opacity:0; scale:2.6 } }
+
+.pin__card{
+  position:absolute; bottom:calc(100% + 12px); left:50%; translate:-50% 0;
+  width:max-content; max-width:min(60vw,260px);
+  padding:12px 16px; border-radius:14px; text-align:left;
+  background:var(--paper); border:1px solid var(--line); color:var(--ink);
+  box-shadow:0 16px 34px -18px rgba(30,50,45,.9);
+  opacity:0; scale:.8; transform-origin:50% 115%; pointer-events:none;
+  transition:opacity .3s var(--ease), scale .3s var(--ease);
+}
+.pin.is-open .pin__card{ opacity:1; scale:1; }
+.pin__name{
+  display:block; font-family:var(--ui); font-size:10px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--rose-deep); margin-bottom:6px;
+}
+.pin__note{ display:block; font-family:var(--body); font-size:16px; line-height:1.45; }
+
+/* ══════════════ QUIZ ══════════════ */
+.quiz .wrap{ text-align:center; }
+.quizList{ margin:44px auto 0; width:min(100% - 20px, 680px); display:grid; gap:22px; }
+.qz{
+  padding:26px 24px; border-radius:20px; text-align:left;
+  background:var(--paper); border:1px solid var(--line);
+  box-shadow:0 18px 38px -24px rgba(50,80,65,.65);
+}
+.qz__q{ margin:0 0 16px; font-family:var(--serif); font-size:clamp(19px,3vw,23px); color:var(--forest); }
+.qz__opts{ display:grid; gap:9px; }
+.qz__opt{
+  padding:13px 18px; border-radius:12px; text-align:left;
+  background:transparent; border:1px solid var(--line); color:var(--ink-2);
+  font-family:var(--body); font-size:17px;
+  transition:background .25s, border-color .25s, color .25s;
+}
+.qz__opt:hover{ border-color:var(--bamboo); }
+.qz.is-answered .qz__opt{ pointer-events:none; opacity:.5; }
+.qz.is-answered .qz__opt.is-right{
+  opacity:1; background:linear-gradient(135deg,var(--bamboo),var(--bamboo-deep));
+  border-color:transparent; color:#f7fff5;
+}
+.qz.is-answered .qz__opt.is-wrong{ opacity:1; border-color:var(--rose); color:var(--rose-deep); }
+.qz__reply{
+  max-height:0; overflow:hidden; opacity:0; margin:0;
+  font-style:italic; color:var(--rose-deep); font-size:17px;
+  transition:max-height .6s var(--ease), opacity .5s .1s, margin .6s var(--ease);
+}
+.qz.is-answered .qz__reply{ max-height:180px; opacity:1; margin-top:16px; }
+
+.quiz__score{
+  margin:30px 0 0; font-family:var(--ui); font-size:11px;
+  letter-spacing:.26em; text-transform:uppercase; color:var(--muted);
+}
+.quiz__score b{ font-family:var(--serif); font-size:22px; color:var(--rose-deep); letter-spacing:0; }
+.quiz__done{ margin-top:18px; font-style:italic; }
+
+/* ══════════════ TIME CAPSULE ══════════════ */
+.capsule .wrap{ text-align:center; }
+.capsuleBox{
+  position:relative; margin:38px auto 0; width:min(100% - 20px, 620px);
+  padding:44px 30px 36px; border-radius:6px 6px 20px 20px;
+  background:linear-gradient(168deg,#fffdf8,#fff1e2);
+  border:1px solid rgba(150,120,90,.25);
+  box-shadow:0 28px 56px -30px rgba(50,60,45,.8);
+}
+.capsuleBox__wax{
+  position:absolute; top:-26px; left:50%; translate:-50% 0;
+  width:56px; height:56px; border-radius:50%; display:grid; place-items:center;
+  background:linear-gradient(145deg,#c0603f,#8e3a26); font-size:22px;
+  box-shadow:0 10px 22px -10px rgba(0,0,0,.8), inset 0 2px 6px rgba(255,255,255,.3);
+  transition:transform .8s var(--ease), opacity .6s;
+}
+.capsuleBox.is-open .capsuleBox__wax{ transform:translateY(-30px) rotate(28deg); opacity:0; }
+.capsuleBox__hint{ margin:12px 0 0; font-size:clamp(16px,2.6vw,19px); line-height:1.65; color:#6a5340; font-style:italic; }
+.capsuleBox__timer{
+  margin:22px 0 0; font-family:var(--ui); font-size:11px;
+  letter-spacing:.26em; text-transform:uppercase; color:#a98a63;
+}
+.capsuleBox__timer b{ font-family:var(--serif); font-size:30px; color:#8e3a26; letter-spacing:0; }
+.capsuleBox__btn{ margin-top:24px; }
+.capsuleBox__note{
+  max-height:0; overflow:hidden; opacity:0; margin:0; text-align:left;
+  font-size:clamp(16px,2.6vw,19px); line-height:1.8; color:#5a4636;
+  transition:max-height .9s var(--ease), opacity .7s .2s, margin .9s var(--ease);
+}
+.capsuleBox.is-open .capsuleBox__note{ max-height:600px; opacity:1; margin-top:22px; }
+
+/* ══════════════ LETTER TOOLS ══════════════ */
+.letterTools{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:32px; }
+.voice{ display:inline-flex; align-items:center; gap:10px; }
+.voice__icon{ display:flex; align-items:flex-end; gap:2px; height:14px; }
+.voice__icon i{ width:2px; height:4px; background:var(--rose-deep); border-radius:2px; }
+.voice.is-playing .voice__icon i{ animation:eq .9s ease-in-out infinite; }
+.voice__icon i:nth-child(2){ animation-delay:.15s }
+.voice__icon i:nth-child(3){ animation-delay:.3s }
+.voice__icon i:nth-child(4){ animation-delay:.45s }
+.voice__cap{
+  margin:14px 0 0; font-family:var(--body); font-style:italic;
+  font-size:15px; color:var(--muted); text-align:center;
+}
+
+/* ══════════════ PRINT ══════════════ */
+@media print{
+  .scenery,#petals,#confetti,#trail,.cursor,.dots,.progress,.music,
+  .roller,.gate,.yesover,.lightbox,.toast,.letterTools,.reply,.footer,
+  .hero,.section:not(.finale){ display:none !important; }
+  body{ background:#fff !important; color:#000 !important; }
+  .app{ opacity:1 !important; }
+  .finale{ padding:0 !important; }
+  .letter{
+    box-shadow:none !important; border:0 !important; max-width:100% !important;
+    background:#fff !important; color:#111 !important;
+  }
+  .letter__seal{ box-shadow:none !important; }
+}
+
 /* ══════════════ MEMORY GAME ══════════════ */
 .game .wrap{ text-align:center; }
 .game__moves{
