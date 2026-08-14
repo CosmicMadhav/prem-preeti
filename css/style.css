@@ -157,6 +157,46 @@ button{ font:inherit; color:inherit; cursor:none; }
 }
 @keyframes twinkle{ from{ opacity:.25; scale:.7 } to{ opacity:1; scale:1.15 } }
 
+/* ── her name, written in stars ── */
+/* Its own section, so nothing ever sits on top of it. */
+.starname{ min-height:78svh; display:grid; place-items:center; }
+.constellation{
+  width:min(88vw, 780px); margin-inline:auto;
+  opacity:0; transition:opacity 1.4s var(--ease);
+}
+.constellation svg{ width:100%; height:auto; overflow:visible; }
+.constellation__line{
+  fill:none; stroke:rgba(214,230,255,.55); stroke-width:.42;
+  stroke-linecap:round; stroke-linejoin:round;
+  stroke-dasharray:var(--len); stroke-dashoffset:var(--len);
+  filter:drop-shadow(0 0 1.4px rgba(190,215,255,.9));
+}
+.constellation.lit .constellation__line{
+  animation:constDraw 1.5s var(--ease) forwards;
+  animation-delay:var(--d);
+}
+@keyframes constDraw{ to{ stroke-dashoffset:0 } }
+
+.constellation__star{
+  fill:#fff; opacity:0;
+  filter:drop-shadow(0 0 2.5px rgba(255,255,255,1));
+}
+.constellation.lit .constellation__star{
+  animation:constPop .9s var(--ease) forwards, twinkle 3.4s ease-in-out infinite alternate 2.6s;
+  animation-delay:var(--d), calc(var(--d) + 1s);
+}
+@keyframes constPop{ from{ opacity:0; r:0 } to{ opacity:1 } }
+
+.constellation__cap{
+  margin:22px auto 0; max-width:34ch; text-align:center;
+  font-family:var(--body); font-style:italic;
+  font-size:clamp(14px,2.2vw,18px); line-height:1.5;
+  color:rgba(220,232,255,.75);
+  opacity:0; transition:opacity 1.2s var(--ease) 2.6s;
+}
+.constellation.lit .constellation__cap{ opacity:1; }
+@media (max-width:700px){ .starname{ min-height:60svh; } }
+
 /* ── shooting stars ── */
 .shooting{ position:absolute; inset:0; opacity:0; }
 .shooting i{
@@ -914,6 +954,150 @@ body.is-open .music{ opacity:1; }
   50% { transform:translateY(-42vh) scale(1.02) rotate(7deg) }
   100%{ opacity:0; transform:translateY(-92vh) scale(1.06) rotate(-5deg) }
 }
+
+/* ══════════════ MEMORY GAME ══════════════ */
+.game .wrap{ text-align:center; }
+.game__moves{
+  margin:26px 0 0; font-family:var(--ui); font-size:11px;
+  letter-spacing:.26em; text-transform:uppercase; color:var(--muted);
+}
+.game__moves b{ font-family:var(--serif); font-size:22px; color:var(--rose-deep); letter-spacing:0; }
+
+.board{
+  margin:26px auto 0; width:min(100% - 32px, 620px);
+  display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(8px,1.8vw,14px);
+}
+@media (max-width:460px){ .board{ grid-template-columns:repeat(3,1fr); } }
+
+.tile{ perspective:900px; background:none; border:0; padding:0; aspect-ratio:1; display:block; }
+/* these are <span>s, so they must be told to behave like boxes */
+.tile__inner{
+  display:block; position:relative; width:100%; height:100%; border-radius:14px;
+  transform-style:preserve-3d; transition:transform .55s var(--ease);
+}
+.tile.is-up .tile__inner,.tile.is-done .tile__inner{ transform:rotateY(180deg); }
+.tile__face{
+  position:absolute; inset:0; border-radius:14px; overflow:hidden;
+  backface-visibility:hidden; display:grid; place-items:center;
+}
+.tile__back{
+  background:linear-gradient(150deg,var(--bamboo),var(--bamboo-deep));
+  border:1px solid rgba(47,83,64,.35); font-size:26px;
+  box-shadow:0 10px 22px -14px rgba(47,83,64,.9);
+}
+.tile__front{ transform:rotateY(180deg); background:var(--paper); border:1px solid var(--line); }
+.tile__front img{ width:100%; height:100%; object-fit:cover; }
+.tile.is-done{ animation:tileWin .6s var(--ease); }
+.tile.is-done .tile__front{ box-shadow:0 0 0 3px var(--rose) inset; }
+@keyframes tileWin{ 0%,100%{ scale:1 } 45%{ scale:1.09 } }
+
+.gameWon{ margin:36px auto 0; max-width:56ch; }
+.btn--soft{
+  margin-top:22px; background:var(--paper); color:var(--forest);
+  border:1px solid var(--line); box-shadow:0 10px 22px -14px rgba(50,80,65,.7);
+}
+.btn--soft:hover{ transform:translateY(-2px); }
+
+/* ══════════════ OPEN WHEN… ══════════════ */
+.envelopes{
+  margin:56px auto 0; width:min(100% - 32px, 1060px);
+  display:grid; gap:clamp(14px,2.4vw,22px);
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+}
+.env{
+  position:relative; display:block; width:100%; padding:0; border:0;
+  text-align:left; background:none; perspective:1000px;
+}
+/* these are <span>s too */
+.env__body{
+  display:block; position:relative; padding:26px 24px 24px; border-radius:6px 6px 12px 12px;
+  background:linear-gradient(168deg,#fffdf8,#fff2e6);
+  border:1px solid rgba(150,120,90,.22);
+  box-shadow:0 18px 36px -22px rgba(50,60,45,.7);
+  transition:transform .5s var(--ease), box-shadow .5s var(--ease);
+  overflow:hidden;
+}
+.env:hover .env__body{ transform:translateY(-6px) rotate(-.5deg); box-shadow:0 26px 50px -22px rgba(50,60,45,.8); }
+
+/* the paper flap, folded down until it's opened */
+.env__flap{
+  position:absolute; top:0; left:0; right:0; height:72px; z-index:2;
+  background:linear-gradient(170deg,#fff6ea,#ffe6cf);
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  border-bottom:1px solid rgba(150,120,90,.2);
+  transform-origin:top; transition:transform .7s var(--ease), opacity .5s;
+}
+.env.is-open .env__flap{ transform:rotateX(-172deg); opacity:0; }
+.env__seal{
+  position:absolute; top:34px; left:50%; translate:-50% 0; z-index:3;
+  width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+  background:linear-gradient(145deg,var(--rose),var(--rose-deep)); color:#fff;
+  font-family:var(--serif); font-size:14px;
+  box-shadow:0 5px 12px -5px rgba(120,40,75,.9), inset 0 1px 4px rgba(255,255,255,.4);
+  transition:opacity .4s, scale .4s;
+}
+.env.is-open .env__seal{ opacity:0; scale:.4; }
+
+.env__when{
+  display:block; position:relative; z-index:1; margin:52px 0 0;
+  font-family:var(--serif); font-size:clamp(20px,3.4vw,25px); line-height:1.25;
+  color:#6b4a2e;
+}
+.env__when::before{
+  content:"Open when "; font-family:var(--ui); font-size:10px;
+  letter-spacing:.28em; text-transform:uppercase; color:#a98a63;
+  display:block; margin-bottom:8px;
+}
+.env.is-open .env__when{ margin-top:6px; transition:margin .6s var(--ease); }
+
+.env__note{
+  display:block; max-height:0; overflow:hidden; opacity:0; color:#5a4636;
+  font-size:clamp(16px,2.6vw,18px); line-height:1.7;
+  transition:max-height .8s var(--ease), opacity .6s .15s, margin .8s var(--ease);
+}
+.env.is-open .env__note{ max-height:520px; opacity:1; margin-top:16px; }
+
+.env__hint{
+  display:block; margin-top:14px;
+  font-family:var(--ui); font-size:9px; letter-spacing:.28em; text-transform:uppercase;
+  color:#bda388; transition:opacity .4s;
+}
+.env.is-open .env__hint{ opacity:0; }
+
+/* ══════════════ SCRATCH ══════════════ */
+.scratch .wrap{ text-align:center; }
+.scratchCard{
+  position:relative; margin:40px auto 0; width:min(100% - 20px, 620px);
+  min-height:210px; border-radius:22px; overflow:hidden;
+  display:grid; place-items:center; padding:38px 30px;
+  background:linear-gradient(150deg,#fffdf8,#fff2f6);
+  border:1px solid var(--line);
+  box-shadow:0 26px 52px -28px rgba(50,80,65,.75);
+}
+.scratchCard__secret{
+  margin:0; font-family:var(--serif); font-size:clamp(20px,4vw,30px);
+  line-height:1.4; color:var(--rose-deep);
+}
+.scratchCard__foil{
+  position:absolute; inset:0; width:100%; height:100%;
+  touch-action:none; cursor:grab;
+}
+.scratchCard.is-done .scratchCard__foil{ opacity:0; transition:opacity .7s var(--ease); pointer-events:none; }
+.scratchCard__hint{
+  position:absolute; left:0; right:0; bottom:16px; z-index:3;
+  font-family:var(--ui); font-size:10px; letter-spacing:.28em; text-transform:uppercase;
+  color:#6b7f75; pointer-events:none; transition:opacity .4s;
+}
+.scratchCard.is-done .scratchCard__hint{ opacity:0; }
+.scratch__done{ margin-top:26px; font-style:italic; }
+
+/* ══════════════ REPLY BUTTON ══════════════ */
+.reply{
+  display:inline-block; margin:40px auto 0; text-decoration:none;
+  text-align:center;
+}
+.finale .wrap{ text-align:center; }
+.finale .letter{ text-align:left; }
 
 /* ══════════════ REASONS ══════════════ */
 .cards{

@@ -70,16 +70,21 @@ const CONTENT = {
     scrollHint: "scroll gently",
   },
 
-  /* ---------- COUNTDOWN ---------- */
-  countdown: {
-    eyebrow: "The day the world got luckier",
-    title: "Counting down to you",
-    // Shown once it IS her birthday
-    todayTitle: "Happy Birthday, my Preeti",
-    todayMessage:
-      "Today the whole universe is just an excuse to celebrate you. Every candle, every song, every good thing today — it belongs to you.",
-    afterMessage:
-      "Every second on this clock is a second closer to celebrating the best thing that ever happened to me.",
+  /* ---------- US, SO FAR ------------------------------------
+     A live counter that ticks UP from the day you two started.
+
+     ►►► PUT YOUR DATE HERE ◄◄◄  Format: "YYYY-MM-DD"
+     (or "YYYY-MM-DDTHH:MM" if you remember the time).
+     Leave it as "" and this whole section quietly disappears.
+  --------------------------------------------------------- */
+  together: {
+    since: "",
+    eyebrow: "Us, so far",
+    title: "How long you've been stuck with me",
+    message:
+      "Every one of those seconds happened. That's the part I can't get over — " +
+      "that all of it was real, and that there's so much more of it coming.",
+    units: { years: "years", days: "days", hours: "hours", minutes: "minutes" },
   },
 
   /* ---------- THE SERIES: OUR STORY, CHAPTER BY CHAPTER ----------
@@ -183,7 +188,73 @@ const CONTENT = {
       { src: "photos/pandas/p7.jpg", caption: "Us. Doing absolutely nothing. Perfectly." },
       { src: "photos/pandas/p8.jpg", caption: "Keeping watch over our whole world." },
     ],
-    credit: "Photos from Wikimedia Commons under free licences — full credits in photos/pandas/ATTRIBUTION.md",
+  },
+
+  /* ---------- MEMORY GAME ---------- */
+  game: {
+    eyebrow: "A small test",
+    title: "Find the pairs",
+    subtitle: "Six pandas, twelve cards. Let's see that memory of yours.",
+    movesLabel: "moves",
+    wonTitle: "Of course you won.",
+    wonMessage:
+      "You always were better at this than me. Remembering things, I mean. " +
+      "You remember everything I say. I don't deserve it, but I'm keeping it.",
+    restart: "Again",
+  },
+
+  /* ---------- OPEN WHEN… ------------------------------------
+     Sealed notes for later. She taps one open when she needs it.
+     Add or remove as many as you like.
+  --------------------------------------------------------- */
+  openWhen: {
+    eyebrow: "For later",
+    title: "Open when…",
+    subtitle: "Not all at once. Save them. They'll still be here.",
+    hint: "tap to open",
+    letters: [
+      {
+        when: "you miss me",
+        note:
+          "Then I'm missing you harder, I promise. Close your eyes and pick a memory — " +
+          "any one — and know that I'm somewhere doing exactly the same thing. " +
+          "We are never as far apart as the distance says we are.",
+      },
+      {
+        when: "you've had a bad day",
+        note:
+          "You don't have to be okay. You don't have to explain it or be graceful about it. " +
+          "Put it down. I'll carry it for a bit. Tell me everything, or tell me nothing and " +
+          "let me just sit here with you.",
+      },
+      {
+        when: "you can't sleep",
+        note:
+          "Then think about something small and good. The way the light comes into your room. " +
+          "The next time we'll see each other. I'm probably awake too, thinking about you, " +
+          "which is a terrible sleeping strategy and my favourite habit.",
+      },
+      {
+        when: "you feel small",
+        note:
+          "Let me tell you what I see. Someone who is kind when it costs her something. " +
+          "Someone people come to when things go wrong. You have never once been small. " +
+          "You just can't see yourself from where I'm standing.",
+      },
+      {
+        when: "we've had a fight",
+        note:
+          "I'm still here. I'm not going anywhere, and neither is this. " +
+          "We're allowed to be bad at things sometimes — we're not allowed to give up. " +
+          "Come find me when you're ready. I'll have already forgiven you.",
+      },
+      {
+        when: "you just want to smile",
+        note:
+          "Remember the panda that sleeps on the front page? That's you at 11am on a Sunday. " +
+          "I've thought about that for far too long and I'm not sorry. I love you. Go have a good day.",
+      },
+    ],
   },
 
   /* ---------- REASONS (flip cards) ---------- */
@@ -246,6 +317,15 @@ const CONTENT = {
       "Then that's it. That's the whole plan. You and me, for as long as we get.",
   },
 
+  /* ---------- SCRATCH TO REVEAL ---------- */
+  scratch: {
+    eyebrow: "One last secret",
+    title: "There's something under here.",
+    hint: "scratch it with your finger",
+    secret: "I'd choose you again. Every single time. Without thinking about it.",
+    done: "…that's all. That's the secret.",
+  },
+
   /* ---------- FINAL LETTER ---------- */
   finale: {
     eyebrow: "The last page",
@@ -260,6 +340,39 @@ const CONTENT = {
     // ← put your name here
     signedBy: "Madhav",
     footer: "PREM — our world · made with far too much love",
+  },
+
+  /* ---------- REPLY BUTTON ----------------------------------
+     A button under the letter that opens WhatsApp with a message
+     to you already typed, so she can answer in one tap.
+
+     ►►► PUT YOUR NUMBER HERE ◄◄◄  Country code first, digits
+     only, no + or spaces. India example: "919876543210".
+     Leave it as "" and the button quietly disappears.
+  --------------------------------------------------------- */
+  reply: {
+    whatsapp: "",
+    label: "Say something back",
+    // What gets pre-typed into her chat with you
+    message: "I found our world. Come here right now.",
+  },
+
+  /* ---------- HER NAME IN THE STARS -------------------------
+     Once the sky goes dark, the stars join up and spell her
+     name across the night. Set enabled:false to turn it off.
+  --------------------------------------------------------- */
+  constellation: {
+    enabled: true,
+    // Defaults to her name. Keep it short — 4 to 8 letters reads best.
+    word: "PREETI",
+    caption: "I put your name in the sky. It was the only place big enough.",
+  },
+
+  /* ---------- WHEN SHE SWITCHES TABS ------------------------
+     The browser tab quietly changes while she's away.
+  --------------------------------------------------------- */
+  tabAway: {
+    title: "come back 🤍",
   },
 
   /* ---------- PANDAS 🐼 ----------
@@ -302,13 +415,17 @@ const CONTENT = {
   /* ---------- NAV DOTS ---------- */
   nav: [
     { id: "hero", label: "PREM" },
-    { id: "countdown", label: "Countdown" },
+    { id: "together", label: "Us, so far" },
     { id: "story", label: "Our story" },
     { id: "gallery", label: "Moments" },
     { id: "pandas", label: "Pandas" },
+    { id: "game", label: "Find the pairs" },
     { id: "reasons", label: "Reasons" },
+    { id: "openwhen", label: "Open when…" },
     { id: "birthday", label: "Birthday" },
     { id: "proposal", label: "The question" },
+    { id: "scratch", label: "Secret" },
+    { id: "starname", label: "The stars" },
     { id: "finale", label: "Letter" },
   ],
 };

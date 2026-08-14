@@ -116,9 +116,6 @@
     $('#heroSubtitle').textContent = C.hero.subtitle;
     $('#heroScroll em').textContent = C.hero.scrollHint;
 
-    // Countdown
-    $('#cdEyebrow').textContent = C.countdown.eyebrow;
-
     // Gallery
     $('#galEyebrow').textContent  = C.gallery.eyebrow;
     $('#galTitle').textContent    = C.gallery.title;
@@ -181,46 +178,309 @@
   /* =========================================================
      3. COUNTDOWN
   ========================================================= */
-  function startCountdown() {
-    const clock = $('#clock');
-    const title = $('#cdTitle');
-    const msg   = $('#cdMessage');
-    let celebrated = false;
+  function startTogether() {
+    const T = C.together;
+    const sec = $('#together');
+    const m = T && String(T.since || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{1,2}):(\d{2}))?/);
 
-    const now = new Date();
-    const isToday = now.getMonth() === B.mo - 1 && now.getDate() === B.d;
+    // No date set yet? The section stays hidden — nothing broken shows.
+    if (!m) return;
 
-    if (isToday) {
-      clock.classList.add('is-today');
-      title.textContent = C.countdown.todayTitle;
-      msg.textContent   = C.countdown.todayMessage;
+    const start = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), 0, 0);
+    if (isNaN(start) || start.getTime() > Date.now()) return;
 
-      // Rain confetti the first time this section is seen
-      new IntersectionObserver((entries, obs) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting && !celebrated) {
-            celebrated = true;
-            FX.rain(180);
-            obs.disconnect();
-          }
-        });
-      }, { threshold: 0.4 }).observe($('#countdown'));
-      return;
+    sec.hidden = false;
+    $('#tgEyebrow').textContent = T.eyebrow;
+    $('#tgTitle').textContent   = T.title;
+    $('#tgMessage').textContent = T.message;
+    const U = T.units || {};
+    $('#tgYL').textContent = U.years   || 'years';
+    $('#tgDL').textContent = U.days    || 'days';
+    $('#tgHL').textContent = U.hours   || 'hours';
+    $('#tgML').textContent = U.minutes || 'minutes';
+
+    const els = { y: $('#tgY'), d: $('#tgD'), h: $('#tgH'), m: $('#tgM') };
+    const prev = {};
+
+    function set(key, value) {
+      const str = String(value).padStart(2, '0');
+      if (prev[key] === str) return;
+      prev[key] = str;
+      els[key].textContent = str;
+      els[key].classList.remove('tick');
+      void els[key].offsetWidth;
+      els[key].classList.add('tick');
     }
 
-    title.textContent = C.countdown.title;
-    msg.textContent   = C.countdown.afterMessage;
+    function tick() {
+      const now = new Date();
+      // whole years first, so "days" reads as days-since-the-anniversary
+      let years = now.getFullYear() - start.getFullYear();
+      const anniv = new Date(start);
+      anniv.setFullYear(start.getFullYear() + years);
+      if (anniv > now) { years--; anniv.setFullYear(anniv.getFullYear() - 1); }
 
-    // Rolls to next year once this year's birthday has passed
-    driveClock(
-      { d: $('#cdD'), h: $('#cdH'), m: $('#cdM'), s: $('#cdS') },
-      () => {
-        const n = new Date();
-        let t = new Date(n.getFullYear(), B.mo - 1, B.d, B.hh, B.mi, 0, 0);
-        if (t.getTime() <= n.getTime()) t = new Date(n.getFullYear() + 1, B.mo - 1, B.d, B.hh, B.mi, 0, 0);
-        return t;
+      const rest = now - anniv;
+      set('y', years);
+      set('d', Math.floor(rest / 86400000));
+      set('h', Math.floor(rest / 3600000) % 24);
+      set('m', Math.floor(rest / 60000) % 60);
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* =========================================================
+     3b. MEMORY GAME — find the panda pairs
+  ========================================================= */
+  function buildGame() {
+    const G = C.game;
+    const pics = ((C.pandaGallery && C.pandaGallery.items) || []).slice(0, 6);
+    if (!G || pics.length < 2) { $('#game').hidden = true; return; }
+
+    $('#gmEyebrow').textContent    = G.eyebrow;
+    $('#gmTitle').textContent      = G.title;
+    $('#gmSubtitle').textContent   = G.subtitle;
+    $('#gmMovesLabel').textContent = G.movesLabel || 'moves';
+    $('#gmWonTitle').textContent   = G.wonTitle;
+    $('#gmWonMsg').textContent     = G.wonMessage;
+    $('#gmRestart').textContent    = G.restart || 'Again';
+
+    const board = $('#board');
+    const won   = $('#gameWon');
+    const moves = $('#gmMoves');
+    let first = null, busy = false, matched = 0, count = 0;
+
+    function deal() {
+      board.innerHTML = '';
+      won.hidden = true;
+      first = null; busy = false; matched = 0; count = 0;
+      moves.textContent = '0';
+
+      const deck = pics.concat(pics)
+        .map((p) => ({ p, r: Math.random() }))
+        .sort((a, b) => a.r - b.r)
+        .map((x) => x.p);
+
+      deck.forEach((pic) => {
+        const t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'tile';
+        t.setAttribute('aria-label', 'Card');
+        t.innerHTML =
+          '<span class="tile__inner">' +
+            '<span class="tile__face tile__back">🐼</span>' +
+            '<span class="tile__face tile__front"></span>' +
+          '</span>';
+        mountImage($('.tile__front', t), pic.src, '');
+        t.dataset.key = pic.src;
+        t.addEventListener('click', () => flip(t));
+        board.appendChild(t);
+      });
+    }
+
+    function flip(t) {
+      if (busy || t.classList.contains('is-up') || t.classList.contains('is-done')) return;
+      t.classList.add('is-up');
+
+      if (!first) { first = t; return; }
+
+      count++;
+      moves.textContent = String(count);
+
+      if (first.dataset.key === t.dataset.key) {
+        first.classList.add('is-done');
+        t.classList.add('is-done');
+        const r = t.getBoundingClientRect();
+        FX.burst(r.left + r.width / 2, r.top + r.height / 2, 18, 6);
+        first = null;
+        matched++;
+        if (matched === pics.length) {
+          setTimeout(() => {
+            FX.rain(140);
+            won.hidden = false;
+            won.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 500);
+        }
+      } else {
+        busy = true;
+        const a = first;
+        first = null;
+        setTimeout(() => {
+          a.classList.remove('is-up');
+          t.classList.remove('is-up');
+          busy = false;
+        }, 800);
       }
-    );
+    }
+
+    $('#gmRestart').addEventListener('click', deal);
+    deal();
+  }
+
+  /* =========================================================
+     3c. OPEN WHEN… — sealed notes for later
+  ========================================================= */
+  function buildOpenWhen() {
+    const O = C.openWhen;
+    if (!O || !O.letters || !O.letters.length) { $('#openwhen').hidden = true; return; }
+
+    $('#owEyebrow').textContent  = O.eyebrow;
+    $('#owTitle').textContent    = O.title;
+    $('#owSubtitle').textContent = O.subtitle;
+
+    const host = $('#envelopes');
+    O.letters.forEach((L) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'env reveal';
+      b.setAttribute('aria-expanded', 'false');
+      b.innerHTML =
+        '<span class="env__body">' +
+          '<span class="env__flap"></span>' +
+          '<span class="env__seal">P</span>' +
+          '<span class="env__when"></span>' +
+          '<span class="env__note"></span>' +
+          '<span class="env__hint"></span>' +
+        '</span>';
+      $('.env__when', b).textContent = L.when;
+      $('.env__note', b).textContent = L.note;
+      $('.env__hint', b).textContent = O.hint || 'tap to open';
+      b.setAttribute('aria-label', 'Open when ' + L.when);
+
+      b.addEventListener('click', () => {
+        const open = b.classList.toggle('is-open');
+        b.setAttribute('aria-expanded', String(open));
+        if (open) {
+          const r = b.getBoundingClientRect();
+          FX.burst(r.left + r.width / 2, r.top + 40, 16, 6);
+        }
+      });
+      host.appendChild(b);
+    });
+  }
+
+  /* =========================================================
+     3d. SCRATCH TO REVEAL
+  ========================================================= */
+  function buildScratch() {
+    const S = C.scratch;
+    const card = $('#scratchCard');
+    const canvas = $('#scFoil');
+    if (!S || !card) return;
+
+    $('#scEyebrow').textContent = S.eyebrow;
+    $('#scTitle').textContent   = S.title;
+    $('#scSecret').textContent  = S.secret;
+    $('#scHint').textContent    = S.hint || 'scratch it';
+
+    const ctx = canvas.getContext('2d');
+    let dpr = 1, painted = false, done = false;
+
+    function paint() {
+      const w = card.clientWidth, h = card.clientHeight;
+      if (!w || !h) return;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, '#9fc39a');
+      g.addColorStop(0.5, '#7fae6f');
+      g.addColorStop(1, '#5d8f77');
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+
+      // a few bamboo leaves printed on the foil
+      ctx.fillStyle = 'rgba(255,255,255,.16)';
+      for (let i = 0; i < 26; i++) {
+        const x = Math.random() * w, y = Math.random() * h, r = 8 + Math.random() * 12;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(Math.random() * Math.PI);
+        ctx.beginPath();
+        ctx.moveTo(-r * 1.7, 0);
+        ctx.quadraticCurveTo(0, -r * 0.6, r * 1.7, 0);
+        ctx.quadraticCurveTo(0, r * 0.6, -r * 1.7, 0);
+        ctx.fill();
+        ctx.restore();
+      }
+      painted = true;
+    }
+
+    function scratchAt(e) {
+      if (done) return;
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 30, 0, Math.PI * 2);
+      ctx.fill();
+      check();
+    }
+
+    let lastCheck = 0;
+    function check(force) {
+      if (done) return;
+      const now = performance.now();
+      if (!force && now - lastCheck < 240) return;
+      lastCheck = now;
+
+      // sample a coarse grid rather than every pixel
+      const step = 8 * dpr;
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let clear = 0, total = 0;
+      for (let y = 0; y < canvas.height; y += step) {
+        for (let x = 0; x < canvas.width; x += step) {
+          total++;
+          if (data[(y * canvas.width + x) * 4 + 3] < 40) clear++;
+        }
+      }
+      if (total && clear / total > 0.48) {
+        done = true;
+        card.classList.add('is-done');
+        const b = card.getBoundingClientRect();
+        FX.burst(b.left + b.width / 2, b.top + b.height / 2, 70, 11);
+        const doneEl = $('#scDone');
+        if (S.done) { doneEl.textContent = S.done; doneEl.hidden = false; }
+      }
+    }
+
+    let drawing = false;
+    canvas.addEventListener('pointerdown', (e) => {
+      drawing = true;
+      canvas.setPointerCapture(e.pointerId);
+      scratchAt(e);
+    });
+    canvas.addEventListener('pointermove', (e) => { if (drawing) scratchAt(e); });
+    // check once more when she lifts her finger — the throttle above can
+    // otherwise swallow the stroke that actually crosses the threshold
+    canvas.addEventListener('pointerup',     () => { drawing = false; check(true); });
+    canvas.addEventListener('pointercancel', () => { drawing = false; check(true); });
+
+    // Paint once it's actually on screen and has a size
+    new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting && !painted) { paint(); obs.disconnect(); }
+      });
+    }, { threshold: 0.2 }).observe(card);
+    window.addEventListener('resize', () => { if (painted && !done) paint(); }, { passive: true });
+  }
+
+  /* =========================================================
+     3e. REPLY BUTTON
+  ========================================================= */
+  function buildReply() {
+    const R = C.reply;
+    const btn = $('#replyBtn');
+    if (!R || !btn) return;
+    const num = String(R.whatsapp || '').replace(/\D/g, '');
+    if (!num) return;                       // no number set — stays hidden
+    btn.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent(R.message || '');
+    btn.textContent = R.label || 'Reply';
+    btn.hidden = false;
   }
 
   /* =========================================================
@@ -307,7 +567,6 @@
     $('#pgEyebrow').textContent  = G.eyebrow;
     $('#pgTitle').textContent    = G.title;
     $('#pgSubtitle').textContent = G.subtitle;
-    $('#pgCredit').textContent   = G.credit || '';
 
     const host = $('#pandaGrid');
     G.items.forEach((item, i) => {
@@ -685,6 +944,115 @@
   }
 
   /* =========================================================
+     8c-bis. HER NAME IN THE STARS
+     Each letter is a set of polylines on a 60x100 grid. Stars
+     sit on the vertices; the lines draw themselves once the
+     sky is dark.
+  ========================================================= */
+  const GLYPHS = {
+    A: [[[0,100],[30,0],[60,100]], [[12,62],[48,62]]],
+    B: [[[0,100],[0,0],[40,0],[47,25],[40,50],[0,50]], [[40,50],[50,75],[40,100],[0,100]]],
+    C: [[[55,15],[30,0],[5,28],[5,72],[30,100],[55,85]]],
+    D: [[[0,100],[0,0],[34,10],[50,50],[34,90],[0,100]]],
+    E: [[[55,0],[0,0],[0,100],[55,100]], [[0,50],[38,50]]],
+    F: [[[55,0],[0,0],[0,100]], [[0,50],[38,50]]],
+    G: [[[55,15],[30,0],[5,28],[5,72],[30,100],[55,85],[55,56],[32,56]]],
+    H: [[[0,0],[0,100]], [[52,0],[52,100]], [[0,52],[52,52]]],
+    I: [[[10,0],[50,0]], [[30,0],[30,100]], [[10,100],[50,100]]],
+    J: [[[46,0],[46,78],[26,100],[5,86]]],
+    K: [[[0,0],[0,100]], [[50,0],[0,55],[52,100]]],
+    L: [[[0,0],[0,100],[52,100]]],
+    M: [[[0,100],[0,0],[29,56],[58,0],[58,100]]],
+    N: [[[0,100],[0,0],[52,100],[52,0]]],
+    O: [[[28,0],[5,28],[5,72],[28,100],[52,72],[52,28],[28,0]]],
+    P: [[[0,100],[0,0],[40,0],[47,25],[40,50],[0,50]]],
+    Q: [[[28,0],[5,28],[5,72],[28,100],[52,72],[52,28],[28,0]], [[34,74],[58,106]]],
+    R: [[[0,100],[0,0],[40,0],[47,25],[40,50],[0,50]], [[22,50],[52,100]]],
+    S: [[[52,15],[26,0],[6,22],[26,46],[46,62],[30,100],[4,86]]],
+    T: [[[0,0],[60,0]], [[30,0],[30,100]]],
+    U: [[[0,0],[0,72],[26,100],[52,72],[52,0]]],
+    V: [[[0,0],[28,100],[56,0]]],
+    W: [[[0,0],[14,100],[30,42],[46,100],[60,0]]],
+    X: [[[0,0],[52,100]], [[52,0],[0,100]]],
+    Y: [[[0,0],[28,52],[56,0]], [[28,52],[28,100]]],
+    Z: [[[0,0],[55,0],[0,100],[55,100]]],
+  };
+
+  function buildConstellation() {
+    const K = C.constellation;
+    const host = $('#constellation');
+    const svg  = $('#constSvg');
+    if (!K || K.enabled === false || !host || !svg) { if (host) host.remove(); return; }
+
+    const word = String(K.word || C.her.name || '').toUpperCase().replace(/[^A-Z]/g, '');
+    const letters = word.split('').filter((ch) => GLYPHS[ch]);
+    if (!letters.length) { host.remove(); return; }
+
+    const LW = 60, GAP = 34, H = 100;
+    const totalW = letters.length * LW + (letters.length - 1) * GAP;
+    svg.setAttribute('viewBox', `-6 -10 ${totalW + 12} ${H + 20}`);
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const seen = new Set();
+    let order = 0;
+
+    letters.forEach((ch, li) => {
+      const dx = li * (LW + GAP);
+
+      GLYPHS[ch].forEach((stroke) => {
+        // a little hand-drawn wobble so it reads as stars, not a font
+        const pts = stroke.map(([x, y]) => [
+          dx + x + (Math.random() - 0.5) * 3.2,
+          y + (Math.random() - 0.5) * 3.2,
+        ]);
+
+        const line = document.createElementNS(NS, 'polyline');
+        line.setAttribute('class', 'constellation__line');
+        line.setAttribute('points', pts.map((p) => p.join(',')).join(' '));
+
+        // measure so the draw-on animation covers the exact length
+        let len = 0;
+        for (let i = 1; i < pts.length; i++) {
+          len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+        }
+        line.style.setProperty('--len', len.toFixed(1));
+        line.style.setProperty('--d', (li * 0.34).toFixed(2) + 's');
+        svg.appendChild(line);
+
+        pts.forEach((p) => {
+          const key = p[0].toFixed(0) + ':' + p[1].toFixed(0);
+          if (seen.has(key)) return;
+          seen.add(key);
+          const s = document.createElementNS(NS, 'circle');
+          s.setAttribute('class', 'constellation__star');
+          s.setAttribute('cx', p[0].toFixed(2));
+          s.setAttribute('cy', p[1].toFixed(2));
+          s.setAttribute('r', (1.1 + Math.random() * 0.9).toFixed(2));
+          s.style.setProperty('--d', (li * 0.34 + Math.random() * 0.5).toFixed(2) + 's');
+          svg.appendChild(s);
+          order++;
+        });
+      });
+    });
+
+    $('#constCap').textContent = K.caption || '';
+
+    // Light up when she actually arrives at it, then leave it lit.
+    new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        host.style.opacity = '1';
+        host.classList.add('lit');
+        setTimeout(() => {
+          const r = host.getBoundingClientRect();
+          FX.burst(r.left + r.width / 2, r.top + r.height / 2, 40, 8);
+        }, 2400);
+        obs.disconnect();
+      });
+    }, { threshold: 0.35 }).observe(host);
+  }
+
+  /* =========================================================
      8d. HEART BALLOONS — tap anywhere on the page
   ========================================================= */
   function startBalloons() {
@@ -913,14 +1281,27 @@
     buildChapters();
     buildGallery();
     buildPandaGallery();
+    buildGame();
+    buildOpenWhen();
+    buildScratch();
+    buildConstellation();
+    buildReply();
     buildReasons();
     buildCake();
     buildProposal();
     buildPandas();
     buildNav();
-    startCountdown();
+    startTogether();
     startJourney();
     startBalloons();
+
+    // The tab quietly asks for her back while she's away.
+    if (C.tabAway && C.tabAway.title) {
+      const real = document.title;
+      document.addEventListener('visibilitychange', () => {
+        document.title = document.hidden ? C.tabAway.title : real;
+      });
+    }
 
     initGate();
   }

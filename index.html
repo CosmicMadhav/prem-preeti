@@ -106,16 +106,19 @@
     <ellipse cx="98" cy="74" rx="12" ry="8" fill="#2b2320"/>
   </symbol>
 
-  <!-- panda rolled into a ball -->
+  <!-- panda curled into a ball, face tucked in — no face, so it reads
+       correctly while it spins -->
   <symbol id="panda-roll" viewBox="0 0 100 100">
     <circle cx="50" cy="50" r="46" fill="#fffdf8"/>
-    <circle cx="22" cy="24" r="13" fill="#2b2320"/>
-    <circle cx="78" cy="24" r="13" fill="#2b2320"/>
-    <ellipse cx="30" cy="56" rx="13" ry="10" fill="#2b2320" transform="rotate(-24 30 56)"/>
-    <ellipse cx="70" cy="56" rx="13" ry="10" fill="#2b2320" transform="rotate(24 70 56)"/>
-    <ellipse cx="50" cy="84" rx="17" ry="12" fill="#2b2320"/>
-    <path d="M40 52q6 7 13 0M57 52q6 7 13 0" stroke="#fffdf8" stroke-width="2.6"
-          stroke-linecap="round" fill="none"/>
+    <!-- the black shoulder band that wraps a curled panda -->
+    <path d="M50 4a46 46 0 0 1 44 32 46 46 0 0 0-44 30A46 46 0 0 0 6 36 46 46 0 0 1 50 4z"
+          fill="#2b2320" opacity=".92"/>
+    <!-- ear, tucked arm and back leg -->
+    <circle cx="22" cy="20" r="12" fill="#2b2320"/>
+    <ellipse cx="72" cy="76" rx="17" ry="13" fill="#2b2320" transform="rotate(28 72 76)"/>
+    <ellipse cx="32" cy="80" rx="14" ry="11" fill="#2b2320" transform="rotate(-22 32 80)"/>
+    <!-- little tail -->
+    <circle cx="88" cy="54" r="7" fill="#fffdf8" stroke="#2b2320" stroke-width="1.4"/>
   </symbol>
 
   <!-- the three mountain ridges, reused by the page and by the gate doors -->
@@ -306,21 +309,21 @@
     <div class="hero__scroll" id="heroScroll" aria-hidden="true"><span></span><em></em></div>
   </section>
 
-  <!-- ══════════════ COUNTDOWN ══════════════ -->
-  <section class="section countdown" id="countdown">
+  <!-- ══════════════ US, SO FAR ══════════════ -->
+  <section class="section together" id="together" hidden>
     <div class="wrap">
-      <p class="eyebrow reveal" id="cdEyebrow"></p>
-      <h2 class="h2 reveal" id="cdTitle"></h2>
-      <div class="clock reveal" id="clock">
-        <div class="clock__unit"><b id="cdD">--</b><span>days</span></div>
+      <p class="eyebrow reveal" id="tgEyebrow"></p>
+      <h2 class="h2 reveal" id="tgTitle"></h2>
+      <div class="clock reveal" id="tgClock">
+        <div class="clock__unit"><b id="tgY">--</b><span id="tgYL">years</span></div>
         <div class="clock__sep">:</div>
-        <div class="clock__unit"><b id="cdH">--</b><span>hours</span></div>
+        <div class="clock__unit"><b id="tgD">--</b><span id="tgDL">days</span></div>
         <div class="clock__sep">:</div>
-        <div class="clock__unit"><b id="cdM">--</b><span>minutes</span></div>
+        <div class="clock__unit"><b id="tgH">--</b><span id="tgHL">hours</span></div>
         <div class="clock__sep">:</div>
-        <div class="clock__unit"><b id="cdS">--</b><span>seconds</span></div>
+        <div class="clock__unit"><b id="tgM">--</b><span id="tgML">minutes</span></div>
       </div>
-      <p class="lead reveal" id="cdMessage"></p>
+      <p class="lead reveal" id="tgMessage"></p>
     </div>
   </section>
 
@@ -354,7 +357,22 @@
       <p class="lead reveal" id="pgSubtitle"></p>
     </div>
     <div class="pandaGrid" id="pandaGrid"></div>
-    <p class="credit" id="pgCredit"></p>
+  </section>
+
+  <!-- ══════════════ MEMORY GAME ══════════════ -->
+  <section class="section game" id="game">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="gmEyebrow"></p>
+      <h2 class="h2 reveal" id="gmTitle"></h2>
+      <p class="lead reveal" id="gmSubtitle"></p>
+      <p class="game__moves reveal"><b id="gmMoves">0</b> <span id="gmMovesLabel"></span></p>
+      <div class="board reveal" id="board"></div>
+      <div class="gameWon" id="gameWon" hidden>
+        <h3 class="wish__title" id="gmWonTitle"></h3>
+        <p class="wish__msg" id="gmWonMsg"></p>
+        <button class="btn btn--soft" id="gmRestart" type="button"></button>
+      </div>
+    </div>
   </section>
 
   <!-- ══════════════ REASONS ══════════════ -->
@@ -365,6 +383,16 @@
       <p class="lead reveal" id="rsSubtitle"></p>
     </div>
     <div class="cards" id="reasonCards"></div>
+  </section>
+
+  <!-- ══════════════ OPEN WHEN… ══════════════ -->
+  <section class="section openwhen" id="openwhen">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="owEyebrow"></p>
+      <h2 class="h2 reveal" id="owTitle"></h2>
+      <p class="lead reveal" id="owSubtitle"></p>
+    </div>
+    <div class="envelopes" id="envelopes"></div>
   </section>
 
   <!-- ══════════════ BIRTHDAY ══════════════ -->
@@ -430,6 +458,28 @@
     </div>
   </section>
 
+  <!-- ══════════════ SCRATCH TO REVEAL ══════════════ -->
+  <section class="section scratch" id="scratch">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="scEyebrow"></p>
+      <h2 class="h2 reveal" id="scTitle"></h2>
+      <div class="scratchCard reveal" id="scratchCard">
+        <p class="scratchCard__secret" id="scSecret"></p>
+        <canvas class="scratchCard__foil" id="scFoil"></canvas>
+        <span class="scratchCard__hint" id="scHint"></span>
+      </div>
+      <p class="lead reveal scratch__done" id="scDone" hidden></p>
+    </div>
+  </section>
+
+  <!-- ══════════════ HER NAME IN THE STARS ══════════════ -->
+  <section class="section starname" id="starname">
+    <div class="constellation" id="constellation">
+      <svg id="constSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
+      <p class="constellation__cap" id="constCap"></p>
+    </div>
+  </section>
+
   <!-- ══════════════ FINALE ══════════════ -->
   <section class="section finale" id="finale">
     <div class="wrap">
@@ -441,6 +491,7 @@
         <p class="letter__sign" id="fnSign"></p>
         <p class="letter__by" id="fnBy"></p>
       </div>
+      <a class="btn btn--yes reply" id="replyBtn" href="#" target="_blank" rel="noopener" hidden></a>
       <p class="footer" id="fnFooter"></p>
     </div>
   </section>

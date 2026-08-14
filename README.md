@@ -56,6 +56,23 @@ in `content.js` to a minute from now, e.g. `"2026-08-15T21:30"`.
 
 ---
 
+## ⚠️ Two blanks to fill in
+
+Both of these are in [`js/content.js`](js/content.js). Until you fill them
+in, those two features **hide themselves** — nothing broken shows on the
+live site, they just don't appear.
+
+| What | Where | Example |
+|---|---|---|
+| The date you two got together | `together.since` | `"2023-02-14"` |
+| Your WhatsApp number | `reply.whatsapp` | `"919876543210"` — country code first, digits only, no `+` or spaces |
+
+The first turns on the **"Us, so far"** counter under the hero. The second
+turns on the **reply button** under your letter, which opens WhatsApp with
+a message to you already typed.
+
+---
+
 ## ✏️ How to personalise it
 
 **You only ever need to edit one file: [`js/content.js`](js/content.js).**
@@ -107,14 +124,17 @@ gently), and she can mute it any time from the bottom-left button.
 |---|---|
 | **The gate** | Countdown → password → doors open. See above. |
 | **Hero** | The word PREM assembles letter by letter, her name glows in script, hearts and pandas drift upward. |
-| **Countdown** | Once she's inside, this section shows the birthday message on the day itself, with confetti — and counts to next year after that. |
+| **Us, so far** | A live counter ticking up from the day you got together — years, days, hours, minutes. |
 | **The series** | Your notes, chapter by chapter, alternating photo/text, revealing as she scrolls. |
 | **Moments** | A polaroid wall. Tap any photo for a full-screen lightbox (arrow keys work too). |
 | **Pandas** | Eight **real panda photographs** with captions about her. Tap for the lightbox. |
+| **Find the pairs** | A memory game built from the panda photos, with a move counter and a message when she wins. |
 | **Reasons** | Flip cards — she taps each one to reveal why. Each flip pops little hearts. |
+| **Open when…** | Six sealed envelopes with wax seals — *open when you miss me*, *open when you've had a bad day*, and so on. She taps one open when she needs it; the flap folds back and the note unrolls. Meant to be saved, not read all at once. |
 | **Birthday** | A CSS cake with real flickering candles. She taps each flame to blow it out; the last one triggers confetti and your birthday message. |
 | **The question** | The proposal. The "Let me think…" button runs away from her cursor (and her finger), getting shyer each time, while YES grows. YES takes over the screen. |
-| **The letter** | Your closing letter on paper, sealed with a P. |
+| **The secret** | A scratch card she rubs away with her finger to uncover one last line. |
+| **The letter** | Your closing letter on paper, sealed with a P — plus a one-tap reply button that opens WhatsApp to you. |
 
 Running throughout: the dawn sky and mountains sit behind everything, so
 she's inside one continuous landscape the whole way down. Bamboo sways at
