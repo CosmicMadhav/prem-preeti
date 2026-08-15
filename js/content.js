@@ -411,6 +411,10 @@ const CONTENT = {
       { name: "Kesariyaji",           state: "Rajasthan", lat: 24.1167, lng: 73.7000 },
       { name: "Jhalawar",             state: "Rajasthan", lat: 24.5967, lng: 76.1653 },
       { name: "Tripura Sundari",      state: "Rajasthan", lat: 23.5500, lng: 74.4300 },
+      { name: "Gadhbor",              state: "Rajasthan", lat: 25.2539, lng: 73.6945 },
+      { name: "Idana Mata",           state: "Rajasthan", lat: 24.4253, lng: 74.3168 },
+      { name: "Banoda Balaji",        state: "Rajasthan", lat: 24.9782, lng: 75.1481 },
+      { name: "Jeen Mata",            state: "Rajasthan", lat: 27.4442, lng: 75.1945 },
 
       /* ---- Maharashtra ---- */
       { name: "Bhimashankar",         state: "Maharashtra", lat: 19.0722, lng: 73.5361 },
@@ -462,8 +466,35 @@ const CONTENT = {
       { name: "Patna Sahib",          state: "Bihar", lat: 25.6100, lng: 85.2300 },
     ],
 
-    // Shown under the map: "62 places, and counting."
+    // Shown under the map: "68 places, and counting."
     countSuffix: "places, and counting.",
+
+    /* ---------- THE FLIGHT ------------------------------------
+       A little plane flies her whole journey, state by state,
+       drawing the route behind it. Then one last dashed line
+       goes somewhere she hasn't been yet.
+    --------------------------------------------------------- */
+    journey: {
+      enabled: true,
+      button: "Fly her journey",
+      replay: "Fly it again",
+      flying: "Flying…",
+
+      // The order the plane travels in. Any state not listed is skipped.
+      order: [
+        "Gujarat", "Rajasthan", "Madhya Pradesh", "Maharashtra",
+        "Uttar Pradesh", "Uttarakhand", "Bihar", "Jharkhand",
+        "West Bengal", "Odisha",
+      ],
+
+      // The last leg — dashed, because it hasn't happened yet
+      nextName: "Wherever you want",
+      nextNote: "You did all of that without me. The next one, I'm coming with you.",
+      nextLat: 21.5, nextLng: 93.8,
+
+      // Appears once the plane lands on that last one
+      ending: "You did all of that without me. Now pick the next one — I'm coming.",
+    },
 
     streetsLabel: "Street map",
     satelliteLabel: "Satellite",

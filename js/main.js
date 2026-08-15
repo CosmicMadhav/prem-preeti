@@ -428,8 +428,13 @@
     const dense = places.length > 12;
     if (dense) $('#atlas').classList.add('is-dense');
 
-    // Frame all the pins, whatever the coordinates are
+    // Frame all the pins, whatever the coordinates are — plus the place
+    // the last dashed leg flies off to, so it isn't off the edge.
     const bounds = L.latLngBounds(places.map((p) => [p.lat, p.lng]));
+    const jn = M.journey;
+    if (jn && jn.enabled !== false && jn.nextLat != null && jn.nextLng != null) {
+      bounds.extend([jn.nextLat, jn.nextLng]);
+    }
     if (places.length === 1) map.setView([places[0].lat, places[0].lng], M.zoom || 14);
     else map.fitBounds(bounds, { padding: [40, 40], maxZoom: M.zoom || 14 });
 
@@ -457,6 +462,12 @@
       });
     });
 
+    /* =====================================================
+       THE FLIGHT — a plane draws her journey, state by state
+    ===================================================== */
+    const J = M.journey;
+    if (J && J.enabled !== false) buildJourney(map, places, M, J);
+
     /* --- streets / satellite toggle --- */
     const toggle = $('#atlasToggle');
     function labelToggle() {
@@ -481,6 +492,179 @@
       });
     }, { threshold: 0.15 }).observe($('#atlas'));
     window.addEventListener('resize', () => map.invalidateSize(), { passive: true });
+  }
+
+  /* =========================================================
+     3c-ii-b. THE FLIGHT
+     Curved arcs between each state she visited, a plane that
+     flies them in order, and one last dashed leg that hasn't
+     happened yet.
+  ========================================================= */
+  function buildJourney(map, places, M, J) {
+    /* --- one stop per state, at the middle of its pins --- */
+    const byState = {};
+    places.forEach((p) => {
+      if (!p.state) return;
+      (byState[p.state] = byState[p.state] || []).push(p);
+    });
+
+    const stops = (J.order || Object.keys(byState))
+      .filter((s) => byState[s] && byState[s].length)
+      .map((s) => {
+        const g = byState[s];
+        return {
+          name: s,
+          count: g.length,
+          lat: g.reduce((a, p) => a + p.lat, 0) / g.length,
+          lng: g.reduce((a, p) => a + p.lng, 0) / g.length,
+        };
+      });
+
+    if (stops.length < 2) return;
+
+    // the leg that hasn't been flown yet
+    const nextStop = (J.nextLat != null && J.nextLng != null)
+      ? { name: J.nextName || '?', lat: J.nextLat, lng: J.nextLng, isNext: true }
+      : null;
+    const route = nextStop ? stops.concat(nextStop) : stops;
+
+    /** A gentle arc between two points, the way flight paths are drawn. */
+    function arc(a, b, n) {
+      const mx = (a.lng + b.lng) / 2, my = (a.lat + b.lat) / 2;
+      const dx = b.lng - a.lng, dy = b.lat - a.lat;
+      const d = Math.hypot(dx, dy) || 1;
+      // push the middle out sideways so the line bows
+      const cx = mx - dy * 0.22, cy = my + dx * 0.22;
+      const pts = [];
+      for (let i = 0; i <= n; i++) {
+        const t = i / n, u = 1 - t;
+        pts.push([
+          u * u * a.lat + 2 * u * t * cy + t * t * b.lat,
+          u * u * a.lng + 2 * u * t * cx + t * t * b.lng,
+        ]);
+      }
+      return pts;
+    }
+
+    /* --- draw every leg, hidden until the plane reaches it --- */
+    const legs = route.slice(0, -1).map((from, i) => {
+      const to = route[i + 1];
+      const pts = arc(from, to, 64);
+      const line = L.polyline(pts, {
+        className: 'route' + (to.isNext ? ' route--next' : ''),
+        color: to.isNext ? '#e5a545' : '#e0709b',
+        weight: to.isNext ? 2.5 : 2,
+        opacity: 0,
+        dashArray: to.isNext ? '7 8' : null,
+        interactive: false,
+      }).addTo(map);
+      return { from, to, pts, line };
+    });
+
+    /* --- the plane --- */
+    const plane = L.marker([route[0].lat, route[0].lng], {
+      icon: L.divIcon({
+        className: 'planeIcon',
+        html: '<div class="plane"><svg viewBox="0 0 24 24">' +
+              '<path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>' +
+              '</svg></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      }),
+      interactive: false,
+      zIndexOffset: 1000,
+    });
+
+    const label = $('#atlasFlight');
+    let flying = false;
+
+    function say(text, hot) {
+      if (!label) return;
+      label.textContent = text || '';
+      label.classList.toggle('is-hot', !!hot);
+      label.classList.toggle('show', !!text);
+    }
+
+    function reset() {
+      legs.forEach((l) => { l.line.setStyle({ opacity: 0 }); l.line.setLatLngs(l.pts); });
+      if (map.hasLayer(plane)) map.removeLayer(plane);
+      say('');
+    }
+
+    /** Walk the plane along one arc, revealing the line behind it. */
+    function flyLeg(leg, ms) {
+      return new Promise((done) => {
+        leg.line.setStyle({ opacity: leg.to.isNext ? 0.85 : 0.7 });
+        leg.line.setLatLngs([leg.pts[0]]);
+        const t0 = performance.now();
+        const el = plane.getElement();
+
+        (function step(now) {
+          const k = Math.min(1, (now - t0) / ms);
+          // ease in and out so it lifts off and settles
+          const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          const idx = Math.max(1, Math.round(e * (leg.pts.length - 1)));
+
+          leg.line.setLatLngs(leg.pts.slice(0, idx + 1));
+          const at = leg.pts[idx];
+          plane.setLatLng(at);
+
+          // point the nose along the path
+          const prev = leg.pts[Math.max(0, idx - 1)];
+          const ang = Math.atan2(at[0] - prev[0], at[1] - prev[1]) * 180 / Math.PI;
+          const nose = plane.getElement() && plane.getElement().firstChild;
+          if (nose) nose.style.transform = 'rotate(' + (-ang) + 'deg)';
+
+          if (k < 1) requestAnimationFrame(step);
+          else done();
+        })(t0);
+        if (el) el.style.opacity = '1';
+      });
+    }
+
+    async function fly() {
+      if (flying) return;
+      flying = true;
+      btn.textContent = J.flying || 'Flying…';
+      btn.disabled = true;
+      reset();
+
+      plane.addTo(map);
+      plane.setLatLng([route[0].lat, route[0].lng]);
+      say(route[0].name + ' · ' + route[0].count);
+
+      for (let i = 0; i < legs.length; i++) {
+        const leg = legs[i];
+        await flyLeg(leg, leg.to.isNext ? 2600 : 1500);
+        if (leg.to.isNext) {
+          say(J.ending || leg.to.name, true);
+          const el = plane.getElement();
+          if (el && el.firstChild) el.firstChild.classList.add('is-landed');
+          FX.burst(window.innerWidth / 2, window.innerHeight / 2, 70, 11);
+        } else {
+          say(leg.to.name + ' · ' + leg.to.count);
+          await new Promise((r) => setTimeout(r, 260));
+        }
+      }
+
+      flying = false;
+      btn.disabled = false;
+      btn.textContent = J.replay || 'Fly it again';
+    }
+
+    const btn = $('#atlasFly');
+    btn.hidden = false;
+    btn.textContent = J.button || 'Fly her journey';
+    btn.addEventListener('click', fly);
+
+    // fly it once, by itself, the first time she reaches the map
+    new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        obs.disconnect();
+        setTimeout(fly, 900);
+      });
+    }, { threshold: 0.45 }).observe($('#atlas'));
   }
 
   /** Escape text going into a popup's HTML. */
