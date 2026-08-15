@@ -56,10 +56,26 @@ const CONTENT = {
     title: "What is the name of our world?",
     hint: "Hint: it's the only word that has ever meant us.",
     placeholder: "type it here",
-    // Any of these will unlock the site (case doesn't matter)
-    passwords: ["prem", "preeti"],
+
+    /* Any of these opens it. Case, spaces and punctuation are all
+       ignored, so "Prem", "PREM " and "p r e m" all work.
+       Her own name is in the list on purpose — it's the first thing
+       most people try. */
+    passwords: [
+      "prem", "preeti", "prempreeti", "preetiprem",
+      "ourworld", "madhav", "premourworld",
+    ],
     wrongMessage: "Not quite, my love. Try again. 🤍",
     button: "Open our world",
+
+    /* ---- so she can never be locked out of her own birthday ----
+       After a few wrong tries the hint gets bigger, and after a few
+       more the door just opens. She should never be stuck outside. */
+    hintAfter: 3,
+    biggerHint: "It's four letters. It's the name of this whole world — look at the top of the page you can't see yet. It starts with P.",
+    openAfter: 5,
+    giveUp: "Open it anyway 🤍",
+    giveUpNote: "It was PREM. It was always going to be PREM.",
   },
 
   /* ---------- HERO ---------- */

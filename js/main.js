@@ -2100,18 +2100,44 @@
       }, 700);
     }
 
+    /* Ignore case, spaces and punctuation, so near-misses still open it. */
+    const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const accepted = (C.lock.passwords || []).map(norm).filter(Boolean);
+
+    const giveUp = $('#lockGiveUp');
+    let wrong = 0;
+
+    if (giveUp) {
+      giveUp.textContent = C.lock.giveUp || 'Open it anyway';
+      giveUp.addEventListener('click', () => {
+        if (C.lock.giveUpNote) {
+          $('#lockHint').textContent = C.lock.giveUpNote;
+        }
+        setTimeout(openGate, 700);
+      });
+    }
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const value = input.value.trim().toLowerCase();
-      if (C.lock.passwords.map((p) => p.toLowerCase()).includes(value)) {
+      if (accepted.includes(norm(input.value))) {
         error.classList.remove('show');
         openGate();
-      } else {
-        error.textContent = C.lock.wrongMessage;
-        error.classList.add('show');
-        gate.classList.add('shake');
-        setTimeout(() => gate.classList.remove('shake'), 500);
-        input.select();
+        return;
+      }
+
+      wrong++;
+      error.textContent = C.lock.wrongMessage;
+      error.classList.add('show');
+      gate.classList.add('shake');
+      setTimeout(() => gate.classList.remove('shake'), 500);
+      input.select();
+
+      // She must never end up locked out of her own birthday.
+      if (C.lock.biggerHint && wrong === (C.lock.hintAfter || 3)) {
+        $('#lockHint').textContent = C.lock.biggerHint;
+      }
+      if (giveUp && wrong >= (C.lock.openAfter || 5)) {
+        giveUp.hidden = false;
       }
     });
 

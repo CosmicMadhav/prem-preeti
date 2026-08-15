@@ -630,6 +630,17 @@ body:not(.is-booting) .boot{ opacity:0; visibility:hidden; pointer-events:none; 
   opacity:0; transition:opacity .3s;
 }
 .lock__error.show{ opacity:1; }
+
+/* only appears after several wrong tries, so she can always get in */
+.lock__giveup{
+  margin-top:14px; padding:11px 24px; border-radius:999px;
+  background:transparent; border:1px solid var(--line); color:var(--muted);
+  font-family:var(--ui); font-size:12px; letter-spacing:.06em;
+  transition:background .25s, color .25s, border-color .25s;
+  animation:giveUpIn .6s var(--ease);
+}
+.lock__giveup:hover{ background:var(--rose); border-color:transparent; color:#fff; }
+@keyframes giveUpIn{ from{ opacity:0; translate:0 8px } to{ opacity:1; translate:0 0 } }
 .gate.shake .gate__panel.is-active{ animation:shake .45s; }
 @keyframes shake{ 10%,90%{translate:-2px} 20%,80%{translate:4px} 30%,50%,70%{translate:-7px} 40%,60%{translate:7px} }
 @keyframes beat{ 0%,100%{transform:scale(1)} 14%{transform:scale(1.14)} 28%{transform:scale(1)} 42%{transform:scale(1.09)} }
