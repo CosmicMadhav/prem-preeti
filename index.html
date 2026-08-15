@@ -20,7 +20,17 @@
 <link rel="stylesheet" href="css/style.css" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐼</text></svg>" />
 </head>
-<body class="is-locked">
+<body class="is-locked is-booting">
+
+<!-- ══════════════ FIRST PAINT ══════════════
+     Covers the page until the fonts and stylesheet are ready, so she
+     never sees it half-built. It removes itself after 3.5s no matter
+     what, so a slow connection can never trap her here.
+-->
+<div class="boot" id="boot">
+  <svg class="boot__panda"><use href="#panda-sleep"/></svg>
+  <span class="boot__bar" aria-hidden="true"><i></i></span>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════
      PANDAS — drawn once here, reused all over the page
@@ -360,22 +370,6 @@
     <div class="pandaGrid" id="pandaGrid"></div>
   </section>
 
-  <!-- ══════════════ MEMORY GAME ══════════════ -->
-  <section class="section game" id="game">
-    <div class="wrap">
-      <p class="eyebrow reveal" id="gmEyebrow"></p>
-      <h2 class="h2 reveal" id="gmTitle"></h2>
-      <p class="lead reveal" id="gmSubtitle"></p>
-      <p class="game__moves reveal"><b id="gmMoves">0</b> <span id="gmMovesLabel"></span></p>
-      <div class="board reveal" id="board"></div>
-      <div class="gameWon" id="gameWon" hidden>
-        <h3 class="wish__title" id="gmWonTitle"></h3>
-        <p class="wish__msg" id="gmWonMsg"></p>
-        <button class="btn btn--soft" id="gmRestart" type="button"></button>
-      </div>
-    </div>
-  </section>
-
   <!-- ══════════════ REASONS ══════════════ -->
   <section class="section reasons" id="reasons">
     <div class="wrap">
@@ -394,33 +388,6 @@
       <p class="lead reveal" id="owSubtitle"></p>
     </div>
     <div class="envelopes" id="envelopes"></div>
-  </section>
-
-  <!-- ══════════════ OUR PLACES ══════════════ -->
-  <section class="section ourmap" id="ourmap">
-    <div class="wrap">
-      <p class="eyebrow reveal" id="mpEyebrow"></p>
-      <h2 class="h2 reveal" id="mpTitle"></h2>
-      <p class="lead reveal" id="mpSubtitle"></p>
-
-      <div class="atlas reveal" id="atlas">
-        <div class="atlas__map" id="atlasMap"></div>
-        <button class="atlas__toggle" id="atlasToggle" type="button"></button>
-        <p class="atlas__offline" id="atlasOffline" hidden></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════ QUIZ ══════════════ -->
-  <section class="section quiz" id="quiz">
-    <div class="wrap">
-      <p class="eyebrow reveal" id="qzEyebrow"></p>
-      <h2 class="h2 reveal" id="qzTitle"></h2>
-      <p class="lead reveal" id="qzSubtitle"></p>
-      <div class="quizList" id="quizList"></div>
-      <p class="quiz__score reveal"><b id="qzScore">0</b> <span id="qzScoreLabel"></span></p>
-      <p class="lead quiz__done" id="qzDone" hidden></p>
-    </div>
   </section>
 
   <!-- ══════════════ BIRTHDAY ══════════════ -->
@@ -500,23 +467,6 @@
     </div>
   </section>
 
-  <!-- ══════════════ TIME CAPSULE ══════════════ -->
-  <section class="section capsule" id="capsule" hidden>
-    <div class="wrap">
-      <p class="eyebrow reveal" id="tcEyebrow"></p>
-      <h2 class="h2 reveal" id="tcTitle"></h2>
-      <div class="capsuleBox reveal" id="capsuleBox">
-        <div class="capsuleBox__wax" aria-hidden="true">
-          <span class="capsuleBox__lock" id="tcLock">🔒</span>
-        </div>
-        <p class="capsuleBox__hint" id="tcHint"></p>
-        <p class="capsuleBox__timer" id="tcTimer"></p>
-        <button class="btn btn--yes capsuleBox__btn" id="tcBtn" type="button" hidden></button>
-        <p class="capsuleBox__note" id="tcNote"></p>
-      </div>
-    </div>
-  </section>
-
   <!-- ══════════════ HER NAME IN THE STARS ══════════════ -->
   <section class="section starname" id="starname">
     <div class="constellation" id="constellation">
@@ -550,6 +500,83 @@
       <p class="footer" id="fnFooter"></p>
     </div>
   </section>
+
+  <!-- ══════════════ TIME CAPSULE ══════════════ -->
+  <section class="section capsule" id="capsule" hidden>
+    <div class="wrap">
+      <p class="eyebrow reveal" id="tcEyebrow"></p>
+      <h2 class="h2 reveal" id="tcTitle"></h2>
+      <div class="capsuleBox reveal" id="capsuleBox">
+        <div class="capsuleBox__wax" aria-hidden="true">
+          <span class="capsuleBox__lock" id="tcLock">🔒</span>
+        </div>
+        <p class="capsuleBox__hint" id="tcHint"></p>
+        <p class="capsuleBox__timer" id="tcTimer"></p>
+        <button class="btn btn--yes capsuleBox__btn" id="tcBtn" type="button" hidden></button>
+        <p class="capsuleBox__note" id="tcNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ MEMORY GAME ══════════════ -->
+  <section class="section game" id="game">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="gmEyebrow"></p>
+      <h2 class="h2 reveal" id="gmTitle"></h2>
+      <p class="lead reveal" id="gmSubtitle"></p>
+      <p class="game__moves reveal"><b id="gmMoves">0</b> <span id="gmMovesLabel"></span></p>
+      <div class="board reveal" id="board"></div>
+      <div class="gameWon" id="gameWon" hidden>
+        <h3 class="wish__title" id="gmWonTitle"></h3>
+        <p class="wish__msg" id="gmWonMsg"></p>
+        <button class="btn btn--soft" id="gmRestart" type="button"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ OUR PLACES ══════════════ -->
+  <section class="section ourmap" id="ourmap">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="mpEyebrow"></p>
+      <h2 class="h2 reveal" id="mpTitle"></h2>
+      <p class="lead reveal" id="mpSubtitle"></p>
+
+      <div class="atlas reveal" id="atlas">
+        <div class="atlas__map" id="atlasMap"></div>
+        <button class="atlas__toggle" id="atlasToggle" type="button"></button>
+        <p class="atlas__offline" id="atlasOffline" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <section class="section quiz" id="quiz">
+    <div class="wrap">
+      <p class="eyebrow reveal" id="qzEyebrow"></p>
+      <h2 class="h2 reveal" id="qzTitle"></h2>
+      <p class="lead reveal" id="qzSubtitle"></p>
+      <div class="quizList" id="quizList"></div>
+      <p class="quiz__score reveal"><b id="qzScore">0</b> <span id="qzScoreLabel"></span></p>
+      <p class="lead quiz__done" id="qzDone" hidden></p>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </main>
 

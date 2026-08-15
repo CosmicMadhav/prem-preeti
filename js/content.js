@@ -646,6 +646,9 @@ const CONTENT = {
   },
 
   /* ---------- NAV DOTS ---------- */
+  /* The order here must match the order of the sections in index.html.
+     The journey runs to the letter; everything after it is the extras
+     tail, for her to poke at once the important part has landed. */
   nav: [
     { id: "hero", label: "PREM" },
     { id: "together", label: "Us, so far" },
@@ -653,16 +656,17 @@ const CONTENT = {
     { id: "gallery", label: "Moments" },
     { id: "reel", label: "Us, moving" },
     { id: "pandas", label: "Pandas" },
-    { id: "game", label: "Find the pairs" },
     { id: "reasons", label: "Reasons" },
     { id: "openwhen", label: "Open when…" },
-    { id: "ourmap", label: "Our places" },
-    { id: "quiz", label: "The quiz" },
     { id: "birthday", label: "Birthday" },
     { id: "proposal", label: "The question" },
     { id: "scratch", label: "Secret" },
-    { id: "capsule", label: "Time capsule" },
     { id: "starname", label: "The stars" },
     { id: "finale", label: "Letter" },
+    // ── extras, after the letter ──
+    { id: "capsule", label: "Time capsule" },
+    { id: "game", label: "Find the pairs" },
+    { id: "ourmap", label: "Our places" },
+    { id: "quiz", label: "The quiz" },
   ],
 };

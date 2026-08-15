@@ -81,6 +81,14 @@
     holder.appendChild(img);
   }
 
+  /** A short buzz on phones that support it. Silently does nothing
+   *  on desktop, and never throws if the browser refuses. */
+  function buzz(pattern) {
+    try {
+      if (navigator.vibrate && !FX.reduced) navigator.vibrate(pattern);
+    } catch (e) { /* not supported — no matter */ }
+  }
+
   /* ---------------------------------------------------------
      Reveal-on-scroll
   --------------------------------------------------------- */
@@ -1138,6 +1146,7 @@
       const r = btnYes.getBoundingClientRect();
       FX.burst(r.left + r.width / 2, r.top + r.height / 2, 160, 17);
       FX.rain(220);
+      buzz([20, 45, 20, 45, 120]);   // a little heartbeat in her hand
 
       // Rolling bursts for a few seconds
       let n = 0;
@@ -1263,10 +1272,20 @@
     let night = 0;
     let ticking = false;
 
+    // The sky follows the STORY, not the page height: night has to arrive
+    // by the letter. Anything after that (the extras) stays night.
+    const endOfJourney = $('#finale');
+    function journeyLength() {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      if (!endOfJourney) return h;
+      const top = endOfJourney.getBoundingClientRect().top + window.scrollY;
+      return Math.max(1, Math.min(h, top - window.innerHeight * 0.35));
+    }
+
     function update() {
       ticking = false;
       const y = window.scrollY;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const max = journeyLength();
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
 
       ridges.forEach((l) => { l.el.style.transform = `translateY(${y * l.k}px)`; });
@@ -1743,6 +1762,7 @@
     function openGate() {
       heart.flare();
       FX.burst(window.innerWidth / 2, window.innerHeight / 2, 90, 13);
+      buzz([12, 30, 60]);            // the gate giving way under her hand
       gate.classList.add('is-unlocking');
 
       setTimeout(() => {
@@ -1868,9 +1888,27 @@
     initGate();
   }
 
+  /** Drop the first-paint cover once the fonts have settled — or after
+   *  3.5s regardless, so a slow connection can never strand her on it. */
+  function clearBootCover() {
+    let done = false;
+    const lift = () => {
+      if (done) return;
+      done = true;
+      document.body.classList.remove('is-booting');
+      setTimeout(() => { const b = $('#boot'); if (b) b.remove(); }, 900);
+    };
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => setTimeout(lift, 120));
+    }
+    window.addEventListener('load', () => setTimeout(lift, 120));
+    setTimeout(lift, 3500);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', () => { boot(); clearBootCover(); });
   } else {
     boot();
+    clearBootCover();
   }
 })();
