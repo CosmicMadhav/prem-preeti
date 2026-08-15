@@ -138,9 +138,12 @@ const CONTENT = {
       title: "The Hard Part",
       date: "when we found out we'd be okay",
       photo: "photos/04.jpg",
+      // landscape artwork — gets a wider frame so the poem isn't cropped
+      wide: true,
       note:
-        "We've had days that weren't easy. And I'm grateful for them, because they showed me something: " +
-        "you don't run. You stay, you talk, you hold on. That's rarer than love. That's the thing I'd build a life on.",
+        "Naraz mili hai, toh kya hua. That's the whole thing, isn't it — we're allowed to not " +
+        "see it the same way. You tell me what you think, I'll explain what I meant, and neither " +
+        "of us goes anywhere. Pyaar kiya hai, koi sauda thodi.",
     },
     {
       number: "V",
@@ -169,14 +172,13 @@ const CONTENT = {
     subtitle: "Every one of these is a day I'd live again.",
     // Add as many as you like. caption shows under the polaroid.
     photos: [
-      { src: "photos/g1.jpg", caption: "us" },
-      { src: "photos/g2.jpg", caption: "that day" },
-      { src: "photos/g3.jpg", caption: "your smile" },
-      { src: "photos/g4.jpg", caption: "golden hour" },
-      { src: "photos/g5.jpg", caption: "no reason" },
-      { src: "photos/g6.jpg", caption: "my favourite" },
-      { src: "photos/g7.jpg", caption: "look at us" },
-      { src: "photos/g8.jpg", caption: "forever" },
+      { src: "photos/g1.jpg", caption: "the sea, and you" },
+      { src: "photos/g2.jpg", caption: "us, laughing" },
+      { src: "photos/g3.jpg", caption: "held" },
+      { src: "photos/g4.jpg", caption: "nazar mili hai" },
+      { src: "photos/g5.jpg", caption: "my favourite" },
+      { src: "photos/g6.jpg", caption: "that smile" },
+      { src: "photos/g7.jpg", caption: "no reason at all" },
     ],
   },
 

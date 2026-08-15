@@ -814,6 +814,8 @@ body.is-open .music{ opacity:1; }
 }
 
 .chapter__media{ position:relative; }
+/* for landscape photos and artwork, so nothing important gets cropped off */
+.chapter__media.is-wide .frame{ aspect-ratio:4/3; }
 .frame{
   position:relative; aspect-ratio:4/5; border-radius:22px; overflow:hidden;
   padding:10px;

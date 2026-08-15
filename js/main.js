@@ -773,7 +773,7 @@
       art.className = 'chapter';
 
       const media = document.createElement('div');
-      media.className = 'chapter__media reveal';
+      media.className = 'chapter__media reveal' + (ch.wide ? ' is-wide' : '');
       const no = document.createElement('span');
       no.className = 'chapter__no';
       no.textContent = ch.number;
