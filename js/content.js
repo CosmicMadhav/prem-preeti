@@ -360,43 +360,110 @@ const CONTENT = {
      the pins sit where you want them.
   --------------------------------------------------------- */
   map: {
-    eyebrow: "The atlas",
-    title: "Our places",
-    subtitle: "A real map, with real pins. Tap one.",
+    eyebrow: "Preeti's travel diary",
+    title: "Everywhere you've been",
+    subtitle:
+      "Every place you've explored, pinned on a real map. Tap one. " +
+      "And when you're done — I'd like to see the next hundred with you.",
 
-    // "satellite" for real aerial imagery, or "streets" for a street map.
-    // She can switch between them with the button on the map anyway.
-    style: "satellite",
+    // "streets" reads better than satellite when the pins are spread
+    // across a whole country. She can switch with the button anyway.
+    style: "streets",
+    zoom: 6,
 
-    // How far in it starts. 13 = a whole city, 15 = a neighbourhood,
-    // 17 = you can see individual buildings.
-    zoom: 13,
+    /* Taken from her travel diary. The map frames itself around whatever
+       is in this list, so you can add, remove or reorder freely.
+       To add one: open Google Maps, RIGHT-CLICK the spot, and the first
+       item in the menu is the latitude and longitude. Copy, paste.
 
-    /* ►►► PUT YOUR REAL PLACES HERE ◄◄◄
-       To get the numbers: open Google Maps, RIGHT-CLICK the exact spot,
-       and the very first item in the menu is the latitude and longitude —
-       click it to copy, then paste it in as lat and lng below.
-
-       These defaults are just Ahmedabad landmarks so the map isn't empty.
-       Replace all five and the map becomes genuinely yours.
-    */
+       Add a "note" to any of them and it shows in the popup — good for
+       the ones you went to together. */
     places: [
-      { name: "Where we met",
-        lat: 23.0225, lng: 72.5714,
-        note: "I had no idea what was about to happen to me." },
-      { name: "Our first proper date",
-        lat: 23.0333, lng: 72.5500,
-        note: "I changed my shirt four times. You noticed nothing. Perfect." },
-      { name: "The place we always go back to",
-        lat: 23.0120, lng: 72.5800,
-        note: "Same order every time. I'd never want to change it." },
-      { name: "Your favourite spot",
-        lat: 23.0400, lng: 72.5950,
-        note: "You light up here. I mostly just watch you light up." },
-      { name: "Home",
-        lat: 23.0050, lng: 72.5600,
-        note: "Wherever you happen to be standing." },
+      /* ---- Gujarat ---- */
+      { name: "Dwarkadhish",          state: "Gujarat", lat: 22.2378, lng: 68.9685 },
+      { name: "Bet Dwarka",           state: "Gujarat", lat: 22.4333, lng: 69.1167 },
+      { name: "Somnath",              state: "Gujarat", lat: 20.8880, lng: 70.4012 },
+      { name: "Nageshwar",            state: "Gujarat", lat: 22.3369, lng: 69.0861 },
+      { name: "Ambaji",               state: "Gujarat", lat: 24.3319, lng: 72.8511 },
+      { name: "Pavagadh",             state: "Gujarat", lat: 22.4823, lng: 73.5133 },
+      { name: "Poicha",               state: "Gujarat", lat: 22.0113, lng: 73.4919 },
+      { name: "Porbandar",            state: "Gujarat", lat: 21.6417, lng: 69.6293 },
+      { name: "Ahmedabad",            state: "Gujarat", lat: 23.0225, lng: 72.5714 },
+      { name: "Akshardham, Gandhinagar", state: "Gujarat", lat: 23.2295, lng: 72.6690 },
+      { name: "Modhera Sun Temple",   state: "Gujarat", lat: 23.5832, lng: 72.1327 },
+      { name: "Dakor",                state: "Gujarat", lat: 22.7530, lng: 73.1500 },
+      { name: "Chotila Mata",         state: "Gujarat", lat: 22.4239, lng: 71.1936 },
+      { name: "Gir",                  state: "Gujarat", lat: 21.1244, lng: 70.8244 },
+      { name: "Surat",                state: "Gujarat", lat: 21.1702, lng: 72.8311 },
+      { name: "Rajkot",               state: "Gujarat", lat: 22.3039, lng: 70.8022 },
+
+      /* ---- Rajasthan ---- */
+      { name: "Sawariya Ji",          state: "Rajasthan", lat: 24.9300, lng: 74.6000 },
+      { name: "Khatu Shyam Ji",       state: "Rajasthan", lat: 27.4000, lng: 75.3900 },
+      { name: "Pokhran",              state: "Rajasthan", lat: 26.9200, lng: 71.9200 },
+      { name: "Ramdevra",             state: "Rajasthan", lat: 26.9167, lng: 71.9333 },
+      { name: "Salasar Balaji",       state: "Rajasthan", lat: 27.7167, lng: 74.7333 },
+      { name: "Pushkar",              state: "Rajasthan", lat: 26.4900, lng: 74.5500 },
+      { name: "Mehandipur Balaji",    state: "Rajasthan", lat: 26.9833, lng: 76.6500 },
+      { name: "Rajsamand",            state: "Rajasthan", lat: 25.0700, lng: 73.8800 },
+      { name: "Udaipur",              state: "Rajasthan", lat: 24.5854, lng: 73.7125 },
+      { name: "Nathdwara",            state: "Rajasthan", lat: 24.9333, lng: 73.8167 },
+      { name: "Kesariyaji",           state: "Rajasthan", lat: 24.1167, lng: 73.7000 },
+      { name: "Jhalawar",             state: "Rajasthan", lat: 24.5967, lng: 76.1653 },
+      { name: "Tripura Sundari",      state: "Rajasthan", lat: 23.5500, lng: 74.4300 },
+
+      /* ---- Maharashtra ---- */
+      { name: "Bhimashankar",         state: "Maharashtra", lat: 19.0722, lng: 73.5361 },
+      { name: "Trimbakeshwar",        state: "Maharashtra", lat: 19.9333, lng: 73.5333 },
+      { name: "Grishneshwar",         state: "Maharashtra", lat: 20.0244, lng: 75.1789 },
+      { name: "Shirdi",               state: "Maharashtra", lat: 19.7667, lng: 74.4833 },
+      { name: "Nashik",               state: "Maharashtra", lat: 19.9975, lng: 73.7898 },
+      { name: "Dagdusheth, Pune",     state: "Maharashtra", lat: 18.5163, lng: 73.8567 },
+      { name: "Shani Shingnapur",     state: "Maharashtra", lat: 19.3667, lng: 74.8000 },
+      { name: "Pune",                 state: "Maharashtra", lat: 18.5204, lng: 73.8567 },
+
+      /* ---- Uttarakhand ---- */
+      { name: "Gangotri",             state: "Uttarakhand", lat: 30.9947, lng: 78.9398 },
+      { name: "Yamunotri",            state: "Uttarakhand", lat: 31.0139, lng: 78.4600 },
+      { name: "Badrinath",            state: "Uttarakhand", lat: 30.7433, lng: 79.4938 },
+      { name: "Kedarnath",            state: "Uttarakhand", lat: 30.7346, lng: 79.0669 },
+      { name: "Gaurikund",            state: "Uttarakhand", lat: 30.6500, lng: 79.0200 },
+      { name: "Rishikesh",            state: "Uttarakhand", lat: 30.0869, lng: 78.2676 },
+      { name: "Haridwar",             state: "Uttarakhand", lat: 29.9457, lng: 78.1642 },
+      { name: "Mussoorie",            state: "Uttarakhand", lat: 30.4598, lng: 78.0644 },
+      { name: "Devprayag",            state: "Uttarakhand", lat: 30.1467, lng: 78.5981 },
+      { name: "Mana",                 state: "Uttarakhand", lat: 30.7667, lng: 79.4833 },
+
+      /* ---- Uttar Pradesh ---- */
+      { name: "Varanasi",             state: "Uttar Pradesh", lat: 25.3176, lng: 82.9739 },
+      { name: "Mathura",              state: "Uttar Pradesh", lat: 27.4924, lng: 77.6737 },
+      { name: "Vrindavan",            state: "Uttar Pradesh", lat: 27.5806, lng: 77.7006 },
+      { name: "Giriraj Ji, Govardhan",state: "Uttar Pradesh", lat: 27.4975, lng: 77.4644 },
+      { name: "Raman Reti, Gokul",    state: "Uttar Pradesh", lat: 27.4400, lng: 77.7200 },
+      { name: "Ayodhya",              state: "Uttar Pradesh", lat: 26.7922, lng: 82.1998 },
+      { name: "Agra",                 state: "Uttar Pradesh", lat: 27.1767, lng: 78.0081 },
+      { name: "Lucknow",              state: "Uttar Pradesh", lat: 26.8467, lng: 80.9462 },
+      { name: "Jhansi",               state: "Uttar Pradesh", lat: 25.4484, lng: 78.5685 },
+      { name: "Mirzapur",             state: "Uttar Pradesh", lat: 25.1460, lng: 82.5690 },
+
+      /* ---- Madhya Pradesh ---- */
+      { name: "Mahakaleshwar, Ujjain",state: "Madhya Pradesh", lat: 23.1828, lng: 75.7683 },
+      { name: "Omkareshwar",          state: "Madhya Pradesh", lat: 22.2450, lng: 76.1510 },
+      { name: "Indore",               state: "Madhya Pradesh", lat: 22.7196, lng: 75.8577 },
+      { name: "Shivpuri",             state: "Madhya Pradesh", lat: 25.4230, lng: 77.6600 },
+
+      /* ---- Odisha, Jharkhand, West Bengal, Bihar ---- */
+      { name: "Puri",                 state: "Odisha", lat: 19.8135, lng: 85.8312 },
+      { name: "Ghatsila",             state: "Jharkhand", lat: 22.5833, lng: 86.4667 },
+      { name: "Vaidyanath Dham, Deoghar", state: "Jharkhand", lat: 24.4922, lng: 86.7000 },
+      { name: "Dakshineswar Kali",    state: "West Bengal", lat: 22.6550, lng: 88.3576 },
+      { name: "Kalighat",             state: "West Bengal", lat: 22.5200, lng: 88.3426 },
+      { name: "Bodh Gaya",            state: "Bihar", lat: 24.6961, lng: 84.9911 },
+      { name: "Patna Sahib",          state: "Bihar", lat: 25.6100, lng: 85.2300 },
     ],
+
+    // Shown under the map: "62 places, and counting."
+    countSuffix: "places, and counting.",
 
     streetsLabel: "Street map",
     satelliteLabel: "Satellite",

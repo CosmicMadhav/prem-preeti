@@ -396,6 +396,9 @@
     $('#mpEyebrow').textContent  = M.eyebrow;
     $('#mpTitle').textContent    = M.title;
     $('#mpSubtitle').textContent = M.subtitle;
+    if (M.countSuffix) {
+      $('#mpCount').textContent = places.length + ' ' + M.countSuffix;
+    }
 
     // Leaflet missing (offline, blocked)? Say so instead of showing a grey box.
     if (typeof L === 'undefined') {
@@ -421,23 +424,29 @@
       layers: [satellite ? SAT : STREETS],
     });
 
+    // Lots of pins need smaller, quieter markers than a handful do
+    const dense = places.length > 12;
+    if (dense) $('#atlas').classList.add('is-dense');
+
     // Frame all the pins, whatever the coordinates are
     const bounds = L.latLngBounds(places.map((p) => [p.lat, p.lng]));
     if (places.length === 1) map.setView([places[0].lat, places[0].lng], M.zoom || 14);
-    else map.fitBounds(bounds, { padding: [50, 50], maxZoom: M.zoom || 14 });
+    else map.fitBounds(bounds, { padding: [40, 40], maxZoom: M.zoom || 14 });
 
+    const size = dense ? [18, 23] : [30, 38];
     places.forEach((place) => {
       const icon = L.divIcon({
         className: 'mapPin',
-        html: '<div class="mapPin__body"><span class="mapPin__pulse"></span></div>',
-        iconSize: [30, 38],
-        iconAnchor: [15, 38],
-        popupAnchor: [0, -34],
+        html: '<div class="mapPin__body">' + (dense ? '' : '<span class="mapPin__pulse"></span>') + '</div>',
+        iconSize: size,
+        iconAnchor: [size[0] / 2, size[1]],
+        popupAnchor: [0, -size[1] + 4],
       });
       const marker = L.marker([place.lat, place.lng], { icon, title: place.name }).addTo(map);
+      const sub = place.note || place.state || '';
       marker.bindPopup(
         '<b class="pin__name">' + esc(place.name) + '</b>' +
-        '<span class="pin__note">' + esc(place.note || '') + '</span>',
+        (sub ? '<span class="pin__note">' + esc(sub) + '</span>' : ''),
         { maxWidth: 260, closeButton: true }
       );
       marker.on('popupopen', () => {

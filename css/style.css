@@ -1037,7 +1037,7 @@ html.is-night .reelDots button{ background:rgba(255,255,255,.25); }
 /* ══════════════ OUR PLACES ══════════════ */
 .atlas{
   position:relative; margin:48px auto 0; width:min(100% - 20px, 780px);
-  aspect-ratio:3/2; border-radius:22px; overflow:hidden;
+  aspect-ratio:4/5; max-height:76svh; border-radius:22px; overflow:hidden;
   background:var(--paper); border:1px solid var(--line);
   box-shadow:0 26px 52px -28px rgba(50,80,65,.75);
 }
@@ -1072,7 +1072,7 @@ html.is-night .reelDots button{ background:rgba(255,255,255,.25); }
 /* the pin itself — a heart on a spike */
 .mapPin{ background:none !important; border:0 !important; }
 .mapPin__body{
-  position:relative; width:30px; height:38px;
+  position:relative; width:100%; height:100%;
   filter:drop-shadow(0 5px 8px rgba(0,0,0,.45));
 }
 .mapPin__body::before{
@@ -1083,6 +1083,18 @@ html.is-night .reelDots button{ background:rgba(255,255,255,.25); }
 .mapPin__body::after{
   content:""; position:absolute; top:8px; left:50%; translate:-50% 0;
   width:10px; height:10px; border-radius:50%; background:#fff;
+}
+/* a whole country's worth of pins needs smaller, quieter ones */
+.atlas.is-dense .mapPin__body{ filter:drop-shadow(0 3px 5px rgba(0,0,0,.4)); }
+.atlas.is-dense .mapPin__body::before{ width:16px; height:16px; }
+.atlas.is-dense .mapPin__body::after { top:5px; width:6px; height:6px; }
+.atlas.is-dense .leaflet-marker-icon{ transition:transform .2s var(--ease); }
+.atlas.is-dense .leaflet-marker-icon:hover{ transform:scale(1.35); z-index:900 !important; }
+
+.atlas__count{
+  margin:20px 0 0; text-align:center;
+  font-family:var(--ui); font-size:11px; letter-spacing:.24em;
+  text-transform:uppercase; color:var(--muted);
 }
 .mapPin__pulse{
   position:absolute; top:5px; left:50%; translate:-50% 0;
