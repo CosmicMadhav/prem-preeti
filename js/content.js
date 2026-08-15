@@ -487,6 +487,26 @@ const CONTENT = {
         "West Bengal", "Odisha",
       ],
 
+      // A colour for each state's leg of the trip
+      colours: {
+        "Gujarat":        "#e0709b",
+        "Rajasthan":      "#e5a545",
+        "Madhya Pradesh": "#7fae6f",
+        "Maharashtra":    "#b57fe0",
+        "Uttar Pradesh":  "#3f9ec4",
+        "Uttarakhand":    "#3fbfa3",
+        "Bihar":          "#ef8155",
+        "Jharkhand":      "#9a7fd0",
+        "West Bengal":    "#d9566a",
+        "Odisha":         "#5f9e63",
+      },
+
+      // How long each hop takes, in milliseconds. All 72 places at these
+      // speeds runs about 26 seconds — turn them down to make it quicker.
+      hopMs: 220,        // between two places in the same state
+      jumpMs: 750,       // crossing into a new state
+      skip: "Skip",
+
       // The last leg — dashed, because it hasn't happened yet
       nextName: "Wherever you want",
       nextNote: "You did all of that without me. The next one, I'm coming with you.",

@@ -505,19 +505,20 @@
       (byState[p.state] = byState[p.state] || []).push(p);
     });
 
-    const stops = (J.order || Object.keys(byState))
+    // Every single place, grouped by state, in the order she'd travel.
+    const stops = [];
+    (J.order || Object.keys(byState))
       .filter((s) => byState[s] && byState[s].length)
-      .map((s) => {
-        const g = byState[s];
-        return {
-          name: s,
-          count: g.length,
-          lat: g.reduce((a, p) => a + p.lat, 0) / g.length,
-          lng: g.reduce((a, p) => a + p.lng, 0) / g.length,
-        };
+      .forEach((s) => {
+        byState[s].forEach((p) => {
+          stops.push({ name: p.name, state: s, lat: p.lat, lng: p.lng });
+        });
       });
 
     if (stops.length < 2) return;
+
+    const COLOURS = J.colours || {};
+    const colourFor = (s) => COLOURS[s] || '#e0709b';
 
     // the leg that hasn't been flown yet
     const nextStop = (J.nextLat != null && J.nextLng != null)
@@ -548,32 +549,44 @@
        stays readable over a busy street map, and the colour on top. */
     const legs = route.slice(0, -1).map((from, i) => {
       const to = route[i + 1];
-      const pts = arc(from, to, 64);
-      const casing = L.polyline(pts, {
+      // crossing into a new state is a bigger moment than the next town over
+      const crossing = !!to.isNext || (from.state && to.state && from.state !== to.state);
+      const pts = arc(from, to, crossing ? 64 : 34);
+      const colour = to.isNext ? '#e5a545' : colourFor(to.state || from.state);
+
+      // only the long hops get a casing; 70 of them would be soup
+      const casing = crossing ? L.polyline(pts, {
         className: 'route__casing',
         color: '#ffffff', weight: to.isNext ? 8 : 7, opacity: 0,
         interactive: false,
-      }).addTo(map);
+      }).addTo(map) : null;
+
       const line = L.polyline(pts, {
         className: 'route' + (to.isNext ? ' route--next' : ''),
-        color: to.isNext ? '#e5a545' : '#e0709b',
-        weight: to.isNext ? 3.5 : 3,
+        color: colour,
+        weight: to.isNext ? 3.5 : (crossing ? 3 : 1.8),
         opacity: 0,
         dashArray: to.isNext ? '8 9' : null,
         interactive: false,
       }).addTo(map);
-      return { from, to, pts, line, casing };
+      return { from, to, pts, line, casing, crossing, colour };
     });
 
-    /* --- the plane --- */
+    /* --- the plane: a proper airliner, seen from above, nose up --- */
+    const PLANE_SVG =
+      '<svg viewBox="0 0 48 48">' +
+        '<path class="plane__body" d="M24 2c1.6 0 2.8 2.4 3 6.6l.2 6.8L45 26.6v3.6l-17.8-4.8v10.2L33 40.4v2.8L24 40.6 15 43.2v-2.8l5.8-4.8V25.4L3 30.2v-3.6l17.8-11.2.2-6.8C21.2 4.4 22.4 2 24 2z"/>' +
+        '<ellipse class="plane__engine" cx="14.5" cy="24.4" rx="2" ry="3.6"/>' +
+        '<ellipse class="plane__engine" cx="33.5" cy="24.4" rx="2" ry="3.6"/>' +
+        '<path class="plane__glass" d="M24 5.4c.8 0 1.3 1.4 1.4 3.4h-2.8c.1-2 .6-3.4 1.4-3.4z"/>' +
+      '</svg>';
+
     const plane = L.marker([route[0].lat, route[0].lng], {
       icon: L.divIcon({
         className: 'planeIcon',
-        html: '<div class="plane"><svg viewBox="0 0 24 24">' +
-              '<path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>' +
-              '</svg></div>',
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
+        html: '<div class="plane">' + PLANE_SVG + '</div>',
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
       }),
       interactive: false,
       zIndexOffset: 1000,
@@ -581,6 +594,7 @@
 
     const label = $('#atlasFlight');
     let flying = false;
+    let stopped = false;
 
     function say(text, hot) {
       if (!label) return;
@@ -592,9 +606,8 @@
     function reset() {
       legs.forEach((l) => {
         l.line.setStyle({ opacity: 0 });
-        l.casing.setStyle({ opacity: 0 });
         l.line.setLatLngs(l.pts);
-        l.casing.setLatLngs(l.pts);
+        if (l.casing) { l.casing.setStyle({ opacity: 0 }); l.casing.setLatLngs(l.pts); }
       });
       if (map.hasLayer(plane)) map.removeLayer(plane);
       say('');
@@ -603,14 +616,18 @@
     /** Walk the plane along one arc, revealing the line behind it. */
     function flyLeg(leg, ms) {
       return new Promise((done) => {
-        leg.line.setStyle({ opacity: leg.to.isNext ? 0.95 : 0.85 });
-        leg.casing.setStyle({ opacity: 0.55 });
+        leg.line.setStyle({ opacity: leg.to.isNext ? 0.95 : (leg.crossing ? 0.85 : 0.7) });
         leg.line.setLatLngs([leg.pts[0]]);
-        leg.casing.setLatLngs([leg.pts[0]]);
+        if (leg.casing) {
+          leg.casing.setStyle({ opacity: 0.5 });
+          leg.casing.setLatLngs([leg.pts[0]]);
+        }
         const t0 = performance.now();
         const el = plane.getElement();
+        if (el) el.style.opacity = '1';
 
         (function step(now) {
+          if (stopped) { done(); return; }
           const k = Math.min(1, (now - t0) / ms);
           // ease in and out so it lifts off and settles
           const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
@@ -618,36 +635,54 @@
 
           const trail = leg.pts.slice(0, idx + 1);
           leg.line.setLatLngs(trail);
-          leg.casing.setLatLngs(trail);
+          if (leg.casing) leg.casing.setLatLngs(trail);
           const at = leg.pts[idx];
           plane.setLatLng(at);
 
-          // point the nose along the path
+          // Point the nose along the path. The art faces north, and a
+          // bearing from north is atan2(east, north) — not the other way
+          // round, which had it flying sideways.
           const prev = leg.pts[Math.max(0, idx - 1)];
-          const ang = Math.atan2(at[0] - prev[0], at[1] - prev[1]) * 180 / Math.PI;
-          const nose = plane.getElement() && plane.getElement().firstChild;
-          if (nose) nose.style.transform = 'rotate(' + (-ang) + 'deg)';
+          const bearing = Math.atan2(at[1] - prev[1], at[0] - prev[0]) * 180 / Math.PI;
+          const nose = el && el.firstChild;
+          if (nose) nose.style.transform = 'rotate(' + bearing.toFixed(1) + 'deg)';
 
           if (k < 1) requestAnimationFrame(step);
           else done();
         })(t0);
-        if (el) el.style.opacity = '1';
       });
     }
 
+    /** Reveal the whole route at once — used when she skips. */
+    function showAll() {
+      legs.forEach((l) => {
+        l.line.setLatLngs(l.pts);
+        l.line.setStyle({ opacity: l.to.isNext ? 0.95 : (l.crossing ? 0.85 : 0.7) });
+        if (l.casing) { l.casing.setLatLngs(l.pts); l.casing.setStyle({ opacity: 0.5 }); }
+      });
+      const last = route[route.length - 1];
+      plane.setLatLng([last.lat, last.lng]);
+      const el = plane.getElement();
+      if (el && el.firstChild) el.firstChild.classList.add('is-landed');
+      say(J.ending || last.name, true);
+    }
+
+    const HOP  = J.hopMs  > 0 ? J.hopMs  : 300;
+    const JUMP = J.jumpMs > 0 ? J.jumpMs : 900;
+
     async function fly() {
-      if (flying) return;
+      if (flying) { stopped = true; return; }   // second tap = skip
       flying = true;
-      btn.textContent = J.flying || 'Flying…';
-      btn.disabled = true;
+      stopped = false;
+      btn.textContent = J.skip || 'Skip';
       atlas.classList.add('is-flying');   // pins step back while it draws
       reset();
 
       plane.addTo(map);
       plane.setLatLng([route[0].lat, route[0].lng]);
-      say(route[0].name + ' · ' + route[0].count);
+      say(route[0].name);
 
-      for (let i = 0; i < legs.length; i++) {
+      for (let i = 0; i < legs.length && !stopped; i++) {
         const leg = legs[i];
 
         // Before the last leg, widen the map so she can see it's heading
@@ -656,22 +691,28 @@
           const wide = L.latLngBounds(route.map((s) => [s.lat, s.lng]));
           map.flyToBounds(wide, { padding: [40, 40], duration: 1.1 });
           await new Promise((r) => setTimeout(r, 1250));
+          if (stopped) break;
         }
 
-        await flyLeg(leg, leg.to.isNext ? 2600 : 1500);
+        await flyLeg(leg, leg.to.isNext ? 2600 : (leg.crossing ? JUMP : HOP));
+        if (stopped) break;
+
         if (leg.to.isNext) {
           say(J.ending || leg.to.name, true);
           const el = plane.getElement();
           if (el && el.firstChild) el.firstChild.classList.add('is-landed');
           FX.burst(window.innerWidth / 2, window.innerHeight / 2, 70, 11);
         } else {
-          say(leg.to.name + ' · ' + leg.to.count);
-          await new Promise((r) => setTimeout(r, 260));
+          say(leg.to.name);
+          // a beat when she lands in a new state, none between neighbours
+          if (leg.crossing) await new Promise((r) => setTimeout(r, 320));
         }
       }
 
+      if (stopped) showAll();
+
       flying = false;
-      btn.disabled = false;
+      stopped = false;
       atlas.classList.remove('is-flying');
       btn.textContent = J.replay || 'Fly it again';
     }
