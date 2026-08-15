@@ -490,7 +490,9 @@ const CONTENT = {
       // The last leg — dashed, because it hasn't happened yet
       nextName: "Wherever you want",
       nextNote: "You did all of that without me. The next one, I'm coming with you.",
-      nextLat: 21.5, nextLng: 93.8,
+      // Out over the Bay of Bengal — past everywhere she's been, but not
+      // so far that the map has to zoom out to nothing.
+      nextLat: 19.2, nextLng: 91.2,
 
       // Appears once the plane lands on that last one
       ending: "You did all of that without me. Now pick the next one — I'm coming.",

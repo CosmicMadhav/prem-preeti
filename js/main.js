@@ -428,24 +428,21 @@
     const dense = places.length > 12;
     if (dense) $('#atlas').classList.add('is-dense');
 
-    // Frame all the pins, whatever the coordinates are — plus the place
-    // the last dashed leg flies off to, so it isn't off the edge.
+    // Frame her pins tightly. The final leg flies off past the edge on
+    // purpose — the map pans out to follow it when the moment comes.
     const bounds = L.latLngBounds(places.map((p) => [p.lat, p.lng]));
-    const jn = M.journey;
-    if (jn && jn.enabled !== false && jn.nextLat != null && jn.nextLng != null) {
-      bounds.extend([jn.nextLat, jn.nextLng]);
-    }
     if (places.length === 1) map.setView([places[0].lat, places[0].lng], M.zoom || 14);
-    else map.fitBounds(bounds, { padding: [40, 40], maxZoom: M.zoom || 14 });
+    else map.fitBounds(bounds, { padding: [26, 26], maxZoom: M.zoom || 14 });
 
-    const size = dense ? [18, 23] : [30, 38];
+    const size = dense ? [14, 14] : [30, 38];
     places.forEach((place) => {
       const icon = L.divIcon({
         className: 'mapPin',
         html: '<div class="mapPin__body">' + (dense ? '' : '<span class="mapPin__pulse"></span>') + '</div>',
         iconSize: size,
-        iconAnchor: [size[0] / 2, size[1]],
-        popupAnchor: [0, -size[1] + 4],
+        // a dot is anchored at its centre; a teardrop at its point
+        iconAnchor: dense ? [size[0] / 2, size[1] / 2] : [size[0] / 2, size[1]],
+        popupAnchor: [0, dense ? -10 : -size[1] + 4],
       });
       const marker = L.marker([place.lat, place.lng], { icon, title: place.name }).addTo(map);
       const sub = place.note || place.state || '';
@@ -546,19 +543,26 @@
       return pts;
     }
 
-    /* --- draw every leg, hidden until the plane reaches it --- */
+    /* --- draw every leg, hidden until the plane reaches it ---
+       Each leg is two lines: a pale casing underneath so the route
+       stays readable over a busy street map, and the colour on top. */
     const legs = route.slice(0, -1).map((from, i) => {
       const to = route[i + 1];
       const pts = arc(from, to, 64);
+      const casing = L.polyline(pts, {
+        className: 'route__casing',
+        color: '#ffffff', weight: to.isNext ? 8 : 7, opacity: 0,
+        interactive: false,
+      }).addTo(map);
       const line = L.polyline(pts, {
         className: 'route' + (to.isNext ? ' route--next' : ''),
         color: to.isNext ? '#e5a545' : '#e0709b',
-        weight: to.isNext ? 2.5 : 2,
+        weight: to.isNext ? 3.5 : 3,
         opacity: 0,
-        dashArray: to.isNext ? '7 8' : null,
+        dashArray: to.isNext ? '8 9' : null,
         interactive: false,
       }).addTo(map);
-      return { from, to, pts, line };
+      return { from, to, pts, line, casing };
     });
 
     /* --- the plane --- */
@@ -586,7 +590,12 @@
     }
 
     function reset() {
-      legs.forEach((l) => { l.line.setStyle({ opacity: 0 }); l.line.setLatLngs(l.pts); });
+      legs.forEach((l) => {
+        l.line.setStyle({ opacity: 0 });
+        l.casing.setStyle({ opacity: 0 });
+        l.line.setLatLngs(l.pts);
+        l.casing.setLatLngs(l.pts);
+      });
       if (map.hasLayer(plane)) map.removeLayer(plane);
       say('');
     }
@@ -594,8 +603,10 @@
     /** Walk the plane along one arc, revealing the line behind it. */
     function flyLeg(leg, ms) {
       return new Promise((done) => {
-        leg.line.setStyle({ opacity: leg.to.isNext ? 0.85 : 0.7 });
+        leg.line.setStyle({ opacity: leg.to.isNext ? 0.95 : 0.85 });
+        leg.casing.setStyle({ opacity: 0.55 });
         leg.line.setLatLngs([leg.pts[0]]);
+        leg.casing.setLatLngs([leg.pts[0]]);
         const t0 = performance.now();
         const el = plane.getElement();
 
@@ -605,7 +616,9 @@
           const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
           const idx = Math.max(1, Math.round(e * (leg.pts.length - 1)));
 
-          leg.line.setLatLngs(leg.pts.slice(0, idx + 1));
+          const trail = leg.pts.slice(0, idx + 1);
+          leg.line.setLatLngs(trail);
+          leg.casing.setLatLngs(trail);
           const at = leg.pts[idx];
           plane.setLatLng(at);
 
@@ -627,6 +640,7 @@
       flying = true;
       btn.textContent = J.flying || 'Flying…';
       btn.disabled = true;
+      atlas.classList.add('is-flying');   // pins step back while it draws
       reset();
 
       plane.addTo(map);
@@ -635,6 +649,15 @@
 
       for (let i = 0; i < legs.length; i++) {
         const leg = legs[i];
+
+        // Before the last leg, widen the map so she can see it's heading
+        // somewhere off past everywhere she's ever been.
+        if (leg.to.isNext) {
+          const wide = L.latLngBounds(route.map((s) => [s.lat, s.lng]));
+          map.flyToBounds(wide, { padding: [40, 40], duration: 1.1 });
+          await new Promise((r) => setTimeout(r, 1250));
+        }
+
         await flyLeg(leg, leg.to.isNext ? 2600 : 1500);
         if (leg.to.isNext) {
           say(J.ending || leg.to.name, true);
@@ -649,9 +672,11 @@
 
       flying = false;
       btn.disabled = false;
+      atlas.classList.remove('is-flying');
       btn.textContent = J.replay || 'Fly it again';
     }
 
+    const atlas = $('#atlas');
     const btn = $('#atlasFly');
     btn.hidden = false;
     btn.textContent = J.button || 'Fly her journey';
