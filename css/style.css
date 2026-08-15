@@ -16,7 +16,7 @@
   --paper-2: #fff5ee;
   --ink:     #33403a;
   --ink-2:   #55665e;
-  --muted:   #6d7f76;
+  --muted:   #5c6d64;   /* darkened: the old #6d7f76 failed contrast on paper */
   --line:    rgba(63,107,74,.16);
 
   /* the hills */
@@ -1140,24 +1140,57 @@ html.is-night .reelDots button{ background:rgba(255,255,255,.25); }
   .atlas__toggle{ padding:9px 13px; font-size:10px; }
 }
 
-.atlas__flight{
-  position:absolute; z-index:500; left:50%; bottom:14px; margin:0;
-  width:max-content; max-width:calc(100% - 40px); translate:-50% 8px;
-  padding:10px 20px; border-radius:999px; text-align:center;
-  background:rgba(255,252,246,.94); border:1px solid var(--line); color:var(--forest);
-  font-family:var(--ui); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
-  box-shadow:0 12px 26px -14px rgba(30,50,45,.8);
+/* ── the flight readout ── */
+.hud{
+  position:absolute; z-index:500; left:50%; bottom:14px;
+  width:min(320px, calc(100% - 28px)); translate:-50% 10px;
+  padding:12px 16px 13px; border-radius:16px;
+  background:rgba(255,252,246,.96); border:1px solid var(--line);
+  box-shadow:0 14px 30px -14px rgba(30,50,45,.85);
   opacity:0; transition:opacity .35s var(--ease), translate .35s var(--ease);
   pointer-events:none;
 }
-.atlas__flight.show{ opacity:1; translate:-50% 0; }
-/* the final line, when it lands somewhere she hasn't been */
-.atlas__flight.is-hot{
-  font-family:var(--body); font-size:clamp(15px,2.6vw,18px);
-  letter-spacing:0; text-transform:none; font-style:italic;
-  color:var(--rose-deep); padding:14px 24px; border-radius:18px;
-  white-space:normal; max-width:min(94%, 42ch);
+.hud.show{ opacity:1; translate:-50% 0; }
+
+.hud__top{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.hud__state{
+  font-family:var(--serif); font-weight:600;
+  font-size:clamp(17px,3.4vw,20px); line-height:1.1; color:var(--forest);
 }
+.hud__count{
+  font-family:var(--ui); font-size:11px; letter-spacing:.1em;
+  color:var(--muted); font-variant-numeric:tabular-nums; flex:none;
+}
+/* the place ticker — small on purpose, it changes fast */
+.hud__place{
+  display:block; margin-top:3px; min-height:1.25em;
+  font-family:var(--body); font-size:15px; line-height:1.25;
+  color:var(--rose-deep);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.hud__bar{
+  display:block; margin-top:9px; height:3px; border-radius:3px;
+  background:rgba(79,127,87,.16); overflow:hidden;
+}
+.hud__bar i{
+  display:block; height:100%; width:0%; border-radius:3px;
+  background:linear-gradient(90deg,var(--bamboo),var(--rose));
+  transition:width .22s linear;
+}
+
+/* the line it lands on, once the plane reaches the last one */
+.atlas__ending{
+  position:absolute; z-index:501; left:50%; bottom:14px; margin:0;
+  width:min(94%, 40ch); translate:-50% 10px;
+  padding:15px 22px; border-radius:18px; text-align:center;
+  background:rgba(255,252,246,.97); border:1px solid var(--line);
+  box-shadow:0 16px 34px -14px rgba(30,50,45,.9);
+  font-family:var(--body); font-style:italic;
+  font-size:clamp(15px,2.7vw,18px); line-height:1.45; color:var(--rose-deep);
+  opacity:0; transition:opacity .5s var(--ease), translate .5s var(--ease);
+  pointer-events:none;
+}
+.atlas__ending.show{ opacity:1; translate:-50% 0; }
 
 .route{ stroke-linecap:round; }
 .route--next{ animation:routeCrawl 1.1s linear infinite; }

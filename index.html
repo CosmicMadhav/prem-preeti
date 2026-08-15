@@ -564,7 +564,17 @@
         <div class="atlas__map" id="atlasMap"></div>
         <button class="atlas__toggle" id="atlasToggle" type="button"></button>
         <button class="atlas__fly" id="atlasFly" type="button" hidden></button>
-        <p class="atlas__flight" id="atlasFlight" aria-live="polite"></p>
+        <!-- flight readout: the state stays put long enough to read, the
+             place name tickers underneath, and the bar shows how far along -->
+        <div class="hud" id="atlasFlight" aria-live="polite">
+          <div class="hud__top">
+            <b class="hud__state" id="flightState"></b>
+            <span class="hud__count" id="flightCount"></span>
+          </div>
+          <span class="hud__place" id="flightPlace"></span>
+          <span class="hud__bar"><i id="flightBar"></i></span>
+        </div>
+        <p class="atlas__ending" id="atlasEnding"></p>
         <p class="atlas__offline" id="atlasOffline" hidden></p>
       </div>
       <p class="atlas__count" id="mpCount"></p>

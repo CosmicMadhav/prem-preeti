@@ -592,15 +592,40 @@
       zIndexOffset: 1000,
     });
 
-    const label = $('#atlasFlight');
+    const hud       = $('#atlasFlight');
+    const hudState  = $('#flightState');
+    const hudPlace  = $('#flightPlace');
+    const hudCount  = $('#flightCount');
+    const hudBar    = $('#flightBar');
+    const ending    = $('#atlasEnding');
     let flying = false;
     let stopped = false;
 
-    function say(text, hot) {
-      if (!label) return;
-      label.textContent = text || '';
-      label.classList.toggle('is-hot', !!hot);
-      label.classList.toggle('show', !!text);
+    /** Update the readout. The state name is what she actually reads —
+     *  it only changes ten times. The place tickers underneath. */
+    function say(stop, n) {
+      if (!hud) return;
+      hud.classList.add('show');
+      if (ending) ending.classList.remove('show');
+      if (hudState && stop.state && hudState.textContent !== stop.state) {
+        hudState.textContent = stop.state;
+      }
+      if (hudPlace) hudPlace.textContent = stop.name || '';
+      if (hudCount) hudCount.textContent = n + ' / ' + stops.length;
+      if (hudBar) hudBar.style.width = ((n / stops.length) * 100).toFixed(1) + '%';
+    }
+
+    /** The closing line, once it lands somewhere she's never been. */
+    function land(text) {
+      if (hud) hud.classList.remove('show');
+      if (!ending) return;
+      ending.textContent = text || '';
+      ending.classList.add('show');
+    }
+
+    function clearHud() {
+      if (hud) hud.classList.remove('show');
+      if (ending) ending.classList.remove('show');
     }
 
     function reset() {
@@ -610,7 +635,7 @@
         if (l.casing) { l.casing.setStyle({ opacity: 0 }); l.casing.setLatLngs(l.pts); }
       });
       if (map.hasLayer(plane)) map.removeLayer(plane);
-      say('');
+      clearHud();
     }
 
     /** Walk the plane along one arc, revealing the line behind it. */
@@ -664,7 +689,7 @@
       plane.setLatLng([last.lat, last.lng]);
       const el = plane.getElement();
       if (el && el.firstChild) el.firstChild.classList.add('is-landed');
-      say(J.ending || last.name, true);
+      land(J.ending || last.name);
     }
 
     const HOP  = J.hopMs  > 0 ? J.hopMs  : 300;
@@ -680,7 +705,7 @@
 
       plane.addTo(map);
       plane.setLatLng([route[0].lat, route[0].lng]);
-      say(route[0].name);
+      say(route[0], 1);
 
       for (let i = 0; i < legs.length && !stopped; i++) {
         const leg = legs[i];
@@ -698,12 +723,12 @@
         if (stopped) break;
 
         if (leg.to.isNext) {
-          say(J.ending || leg.to.name, true);
+          land(J.ending || leg.to.name);
           const el = plane.getElement();
           if (el && el.firstChild) el.firstChild.classList.add('is-landed');
           FX.burst(window.innerWidth / 2, window.innerHeight / 2, 70, 11);
         } else {
-          say(leg.to.name);
+          say(leg.to, i + 2);
           // a beat when she lands in a new state, none between neighbours
           if (leg.crossing) await new Promise((r) => setTimeout(r, 320));
         }
