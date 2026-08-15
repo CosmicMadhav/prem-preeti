@@ -562,46 +562,61 @@ const CONTENT = {
   music: {
     label: "our song",
 
-    // "playlist"  — all the songs play one after another, cross-fading,
-    //               round and round forever. Starts on her first touch.
+    // "playlist"  — songs run one after another, cross-fading, forever.
     // "sections"  — each song is tied to a part of the page instead
     //               (the "for" lists below decide which).
     mode: "playlist",
 
+    // Seconds each song gets before handing over to the next.
+    // Set it to 0 to let every song play all the way through.
+    segment: 10,
+
     // How loud, 0 to 1
     volume: 0.42,
-    // Seconds of overlap when one song hands over to the next
-    fade: 3,
+    // Seconds of overlap as one song hands over to the next
+    fade: 2,
 
+    /* ---------------------------------------------------------
+       ORDER — chosen to build and then settle, so it loops well:
+         soft and close  ->  swelling  ->  big  ->  the peak
+         ->  playful  ->  dreamy  ->  back to soft and close
+
+       startAt = how many seconds INTO the song to begin. This
+       matters: the first 10 seconds of most songs is just the
+       intro. These are my best guess at the part she'd actually
+       recognise — play it once and nudge any that feel wrong.
+       (A number like 62 means 1 minute 2 seconds.)
+    --------------------------------------------------------- */
     tracks: [
-      { title: "Jo Tum Mere Ho",
+      { title: "Jo Tum Mere Ho",      // soft, close, the one you wanted first
         src: "assets/music/Love_JoTumMereHo.mp3",
+        startAt: 52,
         for: ["gate", "hero", "together"] },
 
-      { title: "Until I Found You",
+      { title: "Until I Found You",   // slow, swelling
         src: "assets/music/Love_UntilIFoundYou.mp3",
+        startAt: 48,
         for: ["story"] },
 
-      { title: "I Love You So",
-        src: "assets/music/Love_TheWalters.mp3",
-        for: ["gallery", "pandas", "game"] },
-
-      { title: "Love Me Like You Do",
+      { title: "Love Me Like You Do", // big and cinematic
         src: "assets/music/Love_LoveMeLikeYouDo.mp3",
+        startAt: 60,
         for: ["reasons", "openwhen", "ourmap", "quiz"] },
 
-      { title: "Nadaaniyan",
-        src: "assets/music/Love_Nadaaniyan.mp3",
-        for: ["birthday"] },
-
-      { title: "Perfect",
+      { title: "Perfect",             // the peak
         src: "assets/music/Love_EDPerfect.mp3",
+        startAt: 68,
         for: ["proposal"] },
 
-      // Comes back to the song the whole thing opened with
-      { title: "Jo Tum Mere Ho",
-        src: "assets/music/Love_JoTumMereHo.mp3",
-        for: ["scratch", "capsule", "starname", "finale"] },
+      { title: "Nadaaniyan",          // lighter, playful, comes down
+        src: "assets/music/Love_Nadaaniyan.mp3",
+        startAt: 45,
+        for: ["birthday"] },
+
+      { title: "I Love You So",       // dreamy close, loops back nicely
+        src: "assets/music/Love_TheWalters.mp3",
+        startAt: 55,
+        for: ["gallery", "pandas", "game"] },
     ],
   },
 

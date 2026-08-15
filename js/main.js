@@ -1460,6 +1460,14 @@
 
     /** Bring track `i` in, fading whatever is playing out.
      *  Returns the play() promise so callers can spot a blocked autoplay. */
+    /** Jump to the part of the song worth hearing. Has to wait for the
+     *  file's metadata, otherwise the seek is silently ignored. */
+    function seekTo(audio, seconds) {
+      const go = () => { try { audio.currentTime = seconds || 0; } catch (e) {} };
+      if (audio.readyState >= 1) go();
+      else audio.addEventListener('loadedmetadata', go, { once: true });
+    }
+
     function crossfadeTo(i) {
       if (!ok || i < 0 || i === current) return null;
       const next = players[1 - active];
@@ -1468,9 +1476,11 @@
       // Same song either side of a gap? Just keep it playing.
       if (current >= 0 && queue[current].src === queue[i].src) { current = i; return null; }
 
-      next.src = queue[i].src;
+      // Don't reload if it was already pre-buffered below.
+      if (!next.src || !next.src.endsWith(queue[i].src)) next.src = queue[i].src;
       next.volume = 0;
       next._handedOver = false;
+      seekTo(next, queue[i].startAt);
       const started = next.play();
 
       ramp(next, VOL, FADE);
@@ -1479,13 +1489,28 @@
       active = 1 - active;
       current = i;
       if (label && queue[i].title) label.textContent = queue[i].title;
+
+      // Once the old one has finished fading, quietly load the song after
+      // this, so the next hand-over doesn't stutter on a slow connection.
+      if (PLAYLIST && queue.length > 1) {
+        setTimeout(() => {
+          const idle = players[1 - active];
+          const after = queue[(current + 1) % queue.length];
+          if (!idle.src || !idle.src.endsWith(after.src)) {
+            idle.src = after.src;
+            idle.preload = 'auto';
+            idle.load();
+          }
+        }, FADE + 250);
+      }
       return started;
     }
 
-    /* --- playlist mode: hand over to the next song before this one ends,
-           so the two overlap and you never hear a gap --- */
+    /* --- playlist mode: hand over before the current one runs out, so
+           the two overlap and she never hears a gap --- */
     if (PLAYLIST) {
-      const overlap = FADE / 1000 + 0.4;   // seconds before the end
+      const SEGMENT = M.segment > 0 ? M.segment : 0;
+      const overlap = FADE / 1000 + 0.3;
       const advance = (a) => {
         if (!on || a._handedOver) return;
         a._handedOver = true;
@@ -1494,7 +1519,13 @@
       players.forEach((a) => {
         a.addEventListener('timeupdate', () => {
           if (!a.duration || !isFinite(a.duration)) return;
-          if (a.currentTime >= a.duration - overlap) advance(a);
+          // whichever comes first: the end of its slot, or the end of the song
+          let cut = a.duration - overlap;
+          if (SEGMENT) {
+            const from = (queue[current] && queue[current].startAt) || 0;
+            cut = Math.min(cut, from + SEGMENT - overlap);
+          }
+          if (a.currentTime >= cut) advance(a);
         });
         a.addEventListener('ended', () => advance(a));
       });
