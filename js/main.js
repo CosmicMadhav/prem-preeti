@@ -839,6 +839,107 @@
   })();
 
   /* =========================================================
+     5a-ii. THE REEL — videos, one after another, on a loop
+  ========================================================= */
+  function buildReel() {
+    const R = C.reel;
+    const clips = (R && R.videos || []).filter((v) => v && v.src);
+    const sec = $('#reel');
+    if (!R || !clips.length) { if (sec) sec.hidden = true; return; }
+
+    $('#rlEyebrow').textContent  = R.eyebrow;
+    $('#rlTitle').textContent    = R.title;
+    $('#rlSubtitle').textContent = R.subtitle;
+
+    const stage = $('#reelStage');
+    const video = $('#reelVideo');
+    const cap   = $('#reelCap');
+    const bar   = $('#reelBar');
+    const sound = $('#reelSound');
+    const dotsHost = $('#reelDots');
+
+    let i = 0;
+    let visible = false;
+    let unmuted = false;
+
+    /* --- the little dots underneath --- */
+    const dots = clips.map((_, n) => {
+      const d = document.createElement('button');
+      d.type = 'button';
+      d.setAttribute('aria-label', 'Clip ' + (n + 1));
+      d.addEventListener('click', () => show(n));
+      dotsHost.appendChild(d);
+      return d;
+    });
+    function markDots() {
+      dots.forEach((d, n) => d.classList.toggle('is-on', n === i));
+    }
+
+    function show(n) {
+      i = (n + clips.length) % clips.length;
+      video.classList.remove('is-ready');
+      video.src = clips[i].src;
+      video.load();
+      cap.textContent = clips[i].caption || '';
+      bar.style.width = '0%';
+      markDots();
+      if (visible) {
+        const p = video.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    }
+
+    // match the frame to the video's real shape, whatever it is
+    video.addEventListener('loadedmetadata', () => {
+      if (video.videoWidth && video.videoHeight) {
+        stage.style.setProperty('--ar', video.videoWidth + ' / ' + video.videoHeight);
+      }
+      video.classList.add('is-ready');
+    });
+
+    video.addEventListener('timeupdate', () => {
+      if (!video.duration || !isFinite(video.duration)) return;
+      bar.style.width = ((video.currentTime / video.duration) * 100).toFixed(1) + '%';
+    });
+
+    video.addEventListener('ended', () => show(i + 1));
+    // a broken file shouldn't stall the whole reel
+    video.addEventListener('error', () => { if (clips.length > 1) setTimeout(() => show(i + 1), 600); });
+
+    /* --- sound: unmuting pauses the songs, muting brings them back --- */
+    function labelSound() {
+      sound.textContent = unmuted ? (R.soundOn || 'Sound on') : (R.soundOff || 'Sound off');
+    }
+    function toggleSound() {
+      unmuted = !unmuted;
+      video.muted = !unmuted;
+      if (unmuted) music.duck(true); else music.duck(false);
+      labelSound();
+      const p = video.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+    labelSound();
+    sound.addEventListener('click', (e) => { e.stopPropagation(); toggleSound(); });
+    $('#reelTap').addEventListener('click', toggleSound);
+
+    /* --- only play while she's actually looking at it --- */
+    new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        visible = e.isIntersecting;
+        if (visible) {
+          const p = video.play();
+          if (p && p.catch) p.catch(() => {});
+        } else {
+          video.pause();
+          if (unmuted) { unmuted = false; video.muted = true; music.duck(false); labelSound(); }
+        }
+      });
+    }, { threshold: 0.4 }).observe(stage);
+
+    show(0);
+  }
+
+  /* =========================================================
      5b. THE REAL PANDAS
   ========================================================= */
   function buildPandaGallery() {
@@ -1417,7 +1518,9 @@
     const btn = $('#musicBtn');
     const label = $('#musicLabel');
     const tracks = (M.tracks || []).filter((t) => t && t.src);
-    if (!tracks.length || !btn) return { play() {}, sectionChanged() {} };
+    if (!tracks.length || !btn) {
+      return { play() {}, arm() {}, duck() {}, sectionChanged() {} };
+    }
 
     const VOL  = M.volume != null ? M.volume : 0.42;
     const FADE = (M.fade != null ? M.fade : 2.2) * 1000;
@@ -1460,6 +1563,15 @@
 
     /** Bring track `i` in, fading whatever is playing out.
      *  Returns the play() promise so callers can spot a blocked autoplay. */
+    // Seconds each song gets per turn (0 = play the whole thing).
+    const SEGMENT = M.segment > 0 ? M.segment : 0;
+
+    // Where each song should pick up next time its turn comes round.
+    // Starts at its startAt, then walks forward through the song, so she
+    // never hears the same ten seconds twice.
+    const offsets = queue.map((t) => t.startAt || 0);
+    let curFrom = 0;   // the offset the song now playing started from
+
     /** Jump to the part of the song worth hearing. Has to wait for the
      *  file's metadata, otherwise the seek is silently ignored. */
     function seekTo(audio, seconds) {
@@ -1480,7 +1592,11 @@
       if (!next.src || !next.src.endsWith(queue[i].src)) next.src = queue[i].src;
       next.volume = 0;
       next._handedOver = false;
-      seekTo(next, queue[i].startAt);
+      // pick up where this song left off last time round
+      const from = SEGMENT ? offsets[i] : (queue[i].startAt || 0);
+      curFrom = from;
+      if (SEGMENT) offsets[i] = from + SEGMENT;
+      seekTo(next, from);
       const started = next.play();
 
       ramp(next, VOL, FADE);
@@ -1509,11 +1625,17 @@
     /* --- playlist mode: hand over before the current one runs out, so
            the two overlap and she never hears a gap --- */
     if (PLAYLIST) {
-      const SEGMENT = M.segment > 0 ? M.segment : 0;
       const overlap = FADE / 1000 + 0.3;
       const advance = (a) => {
         if (!on || a._handedOver) return;
         a._handedOver = true;
+
+        // If the next slot would run off the end of the song, start it
+        // again from its best bit rather than playing silence.
+        if (SEGMENT && isFinite(a.duration) &&
+            offsets[current] + SEGMENT > a.duration - 1) {
+          offsets[current] = queue[current].startAt || 0;
+        }
         crossfadeTo((current + 1) % queue.length);
       };
       players.forEach((a) => {
@@ -1521,10 +1643,7 @@
           if (!a.duration || !isFinite(a.duration)) return;
           // whichever comes first: the end of its slot, or the end of the song
           let cut = a.duration - overlap;
-          if (SEGMENT) {
-            const from = (queue[current] && queue[current].startAt) || 0;
-            cut = Math.min(cut, from + SEGMENT - overlap);
-          }
+          if (SEGMENT) cut = Math.min(cut, curFrom + SEGMENT - overlap);
           if (a.currentTime >= cut) advance(a);
         });
         a.addEventListener('ended', () => advance(a));
@@ -1591,10 +1710,20 @@
       if (on) crossfadeTo(wanted);
     }
 
+    /** Drop the music right down (or bring it back) while a video plays
+     *  with its sound on, so the two aren't fighting each other. */
+    let ducked = false;
+    function duck(quiet) {
+      if (quiet === ducked) return;
+      ducked = quiet;
+      if (!on) return;
+      players.forEach((a) => { if (!a.paused) ramp(a, quiet ? 0.04 : VOL, 500); });
+    }
+
     btn.addEventListener('click', () => { if (on) stop(); else play(); });
     btn.hidden = false;
 
-    return { play, arm, sectionChanged };
+    return { play, arm, duck, sectionChanged };
   })();
 
   /* =========================================================
@@ -1702,6 +1831,7 @@
     buildHero();
     buildChapters();
     buildGallery();
+    buildReel();
     buildPandaGallery();
     buildGame();
     buildOpenWhen();

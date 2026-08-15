@@ -182,6 +182,29 @@ const CONTENT = {
     ],
   },
 
+  /* ---------- THE REEL (videos) -----------------------------
+     Plays one video after another, in this exact order, then
+     starts again. They play muted so they don't fight the music
+     — she taps the button for sound, which pauses the songs.
+
+     ►►► TO ADD MORE ◄◄◄  Drop the file in as videos/v4.mp4
+     (v5, v6 …) and add a line here. The order of this list is
+     the order they play in, so reorder these lines to reorder
+     the reel. Nothing else to change.
+  --------------------------------------------------------- */
+  reel: {
+    eyebrow: "Moving pictures",
+    title: "Us, in motion",
+    subtitle: "They play one after another. Tap the screen for sound.",
+    soundOn: "Sound on",
+    soundOff: "Sound off",
+    videos: [
+      { src: "videos/v1.mp4", caption: "" },
+      { src: "videos/v2.mp4", caption: "" },
+      { src: "videos/v3.mp4", caption: "" },
+    ],
+  },
+
   /* ---------- REAL PANDAS ----------------------------------
      Actual panda photos, in photos/pandas/. They came from
      Wikimedia Commons under free licences — the credits are in
@@ -628,6 +651,7 @@ const CONTENT = {
     { id: "together", label: "Us, so far" },
     { id: "story", label: "Our story" },
     { id: "gallery", label: "Moments" },
+    { id: "reel", label: "Us, moving" },
     { id: "pandas", label: "Pandas" },
     { id: "game", label: "Find the pairs" },
     { id: "reasons", label: "Reasons" },

@@ -880,6 +880,52 @@ body.is-open .music{ opacity:1; }
   font-family:var(--script); font-size:20px; color:var(--rose-deep);
 }
 
+/* ══════════════ THE REEL ══════════════ */
+.reel .wrap{ text-align:center; }
+.reelStage{
+  position:relative; margin:44px auto 0;
+  width:min(100% - 32px, 380px);
+  aspect-ratio:var(--ar, 9/16); max-height:74svh;
+  border-radius:26px; overflow:hidden;
+  background:#0e1a17; border:1px solid var(--line);
+  box-shadow:0 30px 60px -30px rgba(20,40,32,.9);
+}
+.reelStage__video{
+  width:100%; height:100%; object-fit:cover; display:block;
+  opacity:0; transition:opacity .45s var(--ease);
+}
+.reelStage__video.is-ready{ opacity:1; }
+
+/* whole-screen tap target for sound */
+.reelStage__tap{ position:absolute; inset:0; z-index:2; background:none; border:0; }
+
+.reelStage__sound{
+  position:absolute; z-index:3; right:12px; top:12px;
+  padding:8px 15px; border-radius:999px; border:1px solid rgba(255,255,255,.3);
+  background:rgba(15,25,22,.6); color:#fff; backdrop-filter:blur(8px);
+  font-family:var(--ui); font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+}
+
+/* the thin progress line along the bottom */
+.reelStage__bar{
+  position:absolute; z-index:3; left:0; bottom:0; height:3px; width:0%;
+  background:linear-gradient(90deg,var(--rose),var(--gold));
+}
+
+.reelCap{
+  margin:18px 0 0; min-height:1.4em;
+  font-family:var(--body); font-style:italic;
+  font-size:clamp(16px,2.6vw,19px); color:var(--ink-2);
+}
+
+.reelDots{ display:flex; gap:9px; justify-content:center; margin-top:16px; }
+.reelDots button{
+  width:9px; height:9px; padding:0; border:0; border-radius:50%;
+  background:rgba(63,107,74,.28); transition:all .3s var(--ease);
+}
+html.is-night .reelDots button{ background:rgba(255,255,255,.25); }
+.reelDots button.is-on{ background:var(--rose-deep); width:26px; border-radius:999px; }
+
 /* ══════════════ REAL PANDAS ══════════════ */
 .pandaGrid{
   margin:56px auto 0; width:min(100% - 32px, 1180px);
