@@ -1422,13 +1422,23 @@
     const VOL  = M.volume != null ? M.volume : 0.42;
     const FADE = (M.fade != null ? M.fade : 2.2) * 1000;
 
-    // section id -> track index
+    // "playlist" runs through every song in turn; "sections" ties each
+    // song to a part of the page.
+    const PLAYLIST = M.mode !== 'sections';
+
+    // section id -> track index (only used in "sections" mode)
     const bySection = {};
     tracks.forEach((t, i) => (t.for || []).forEach((id) => { bySection[id] = i; }));
 
+    // In playlist mode each song should appear once, in order.
+    const seen = new Set();
+    const queue = PLAYLIST
+      ? tracks.filter((t) => (seen.has(t.src) ? false : seen.add(t.src)))
+      : tracks;
+
     // Two players, so one can fade out while the next fades in.
     const players = [new Audio(), new Audio()];
-    players.forEach((a) => { a.preload = 'none'; a.loop = true; a.volume = 0; });
+    players.forEach((a) => { a.preload = 'none'; a.loop = false; a.volume = 0; });
     let active = 0;        // which player is currently in front
     let current = -1;      // which track index is playing
     let on = false;        // has she got the music switched on
@@ -1448,35 +1458,86 @@
       })(t0);
     }
 
-    /** Bring track `i` in, fading whatever is playing out. */
+    /** Bring track `i` in, fading whatever is playing out.
+     *  Returns the play() promise so callers can spot a blocked autoplay. */
     function crossfadeTo(i) {
-      if (!ok || i < 0 || i === current) return;
+      if (!ok || i < 0 || i === current) return null;
       const next = players[1 - active];
       const prev = players[active];
 
       // Same song either side of a gap? Just keep it playing.
-      if (current >= 0 && tracks[current].src === tracks[i].src) { current = i; return; }
+      if (current >= 0 && queue[current].src === queue[i].src) { current = i; return null; }
 
-      next.src = tracks[i].src;
+      next.src = queue[i].src;
       next.volume = 0;
-      const start = next.play();
-      if (start && start.catch) start.catch(() => {});
+      next._handedOver = false;
+      const started = next.play();
 
       ramp(next, VOL, FADE);
       if (current >= 0) ramp(prev, 0, FADE);
 
       active = 1 - active;
       current = i;
-      if (label && tracks[i].title) label.textContent = tracks[i].title;
+      if (label && queue[i].title) label.textContent = queue[i].title;
+      return started;
+    }
+
+    /* --- playlist mode: hand over to the next song before this one ends,
+           so the two overlap and you never hear a gap --- */
+    if (PLAYLIST) {
+      const overlap = FADE / 1000 + 0.4;   // seconds before the end
+      const advance = (a) => {
+        if (!on || a._handedOver) return;
+        a._handedOver = true;
+        crossfadeTo((current + 1) % queue.length);
+      };
+      players.forEach((a) => {
+        a.addEventListener('timeupdate', () => {
+          if (!a.duration || !isFinite(a.duration)) return;
+          if (a.currentTime >= a.duration - overlap) advance(a);
+        });
+        a.addEventListener('ended', () => advance(a));
+      });
     }
 
     function play() {
-      on = true;
       btn.hidden = false;
+      // carry on from where she muted, rather than starting over
+      const want = wanted >= 0 ? wanted : Math.max(0, resumeAt);
+      const started = crossfadeTo(want);
+
+      on = true;
       btn.setAttribute('aria-pressed', 'true');
-      // start with whatever section she's in, falling back to the first track
-      const want = currentWanted();
-      crossfadeTo(want >= 0 ? want : 0);
+
+      // Autoplay blocked? Undo, so the next real tap tries again.
+      if (started && started.catch) {
+        started.catch(() => {
+          on = false;
+          current = -1;
+          btn.setAttribute('aria-pressed', 'false');
+          if (label) label.textContent = M.label || 'music';
+        });
+      }
+    }
+
+    /** Start the music as early as the browser will allow.
+     *  Tries immediately (works on repeat visits, where the browser
+     *  already trusts the site), and otherwise latches onto her very
+     *  first tap, click or keypress — including typing the password. */
+    function arm() {
+      play();
+
+      const events = ['pointerdown', 'keydown', 'touchstart'];
+      function kick() {
+        if (on && !players[active].paused) { done(); return; }
+        play();
+        // give the play promise a moment to settle before unhooking
+        setTimeout(() => { if (on && !players[active].paused) done(); }, 300);
+      }
+      function done() {
+        events.forEach((ev) => window.removeEventListener(ev, kick, true));
+      }
+      events.forEach((ev) => window.addEventListener(ev, kick, true));
     }
 
     function stop() {
@@ -1484,15 +1545,17 @@
       btn.setAttribute('aria-pressed', 'false');
       if (label) label.textContent = M.label || 'music';
       players.forEach((a) => ramp(a, 0, 700));
+      resumeAt = current;
       current = -1;
     }
 
-    let wanted = -1;
-    function currentWanted() { return wanted; }
+    let wanted = -1;      // section mode: which track the page wants
+    let resumeAt = 0;     // playlist mode: where she left off
 
-    /** Called as she scrolls into a new section. */
+    /** Called as she scrolls into a new section.
+     *  Ignored in playlist mode — there the songs just run in order. */
     function sectionChanged(id) {
-      if (!(id in bySection)) return;
+      if (PLAYLIST || !(id in bySection)) return;
       wanted = bySection[id];
       if (on) crossfadeTo(wanted);
     }
@@ -1500,7 +1563,7 @@
     btn.addEventListener('click', () => { if (on) stop(); else play(); });
     btn.hidden = false;
 
-    return { play, sectionChanged };
+    return { play, arm, sectionChanged };
   })();
 
   /* =========================================================
@@ -1628,6 +1691,10 @@
     startTogether();
     startJourney();
     startBalloons();
+
+    // Get the music going as soon as the browser will let us — which in
+    // practice is her first tap, or typing the password.
+    music.arm();
 
     // The tab quietly asks for her back while she's away.
     if (C.tabAway && C.tabAway.title) {

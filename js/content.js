@@ -561,10 +561,17 @@ const CONTENT = {
   --------------------------------------------------------- */
   music: {
     label: "our song",
+
+    // "playlist"  — all the songs play one after another, cross-fading,
+    //               round and round forever. Starts on her first touch.
+    // "sections"  — each song is tied to a part of the page instead
+    //               (the "for" lists below decide which).
+    mode: "playlist",
+
     // How loud, 0 to 1
     volume: 0.42,
-    // Seconds to cross-fade between two tracks
-    fade: 2.2,
+    // Seconds of overlap when one song hands over to the next
+    fade: 3,
 
     tracks: [
       { title: "Jo Tum Mere Ho",
