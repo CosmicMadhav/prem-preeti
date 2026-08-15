@@ -1,5 +1,18 @@
 # The repo is public so GitHub Pages can serve it, but this page is not
 # meant for search engines. Between this file and the noindex meta tag in
 # index.html, only someone with the direct link will find it.
+#
+# The exception: the crawlers that build link previews. Without these
+# three rules, WhatsApp would show a bare URL with no card at all.
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
 User-agent: *
 Disallow: /

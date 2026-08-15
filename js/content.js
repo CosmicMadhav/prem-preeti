@@ -214,16 +214,16 @@ const CONTENT = {
   pandaGallery: {
     eyebrow: "Field research",
     title: "Pandas that remind me of you",
-    subtitle: "I looked at a great many pandas for this. Purely for science.",
+    subtitle: "I found these for you. You love them, so now I love them.",
     items: [
-      { src: "photos/pandas/p1.jpg", caption: "Walking away because I said something stupid." },
-      { src: "photos/pandas/p2.jpg", caption: "You. Any Sunday. Any Sunday at all." },
-      { src: "photos/pandas/p3.jpg", caption: "The face you make when the food arrives." },
+      { src: "photos/pandas/p1.jpg", caption: "This one walks like you." },
+      { src: "photos/pandas/p2.jpg", caption: "You. Any Sunday." },
+      { src: "photos/pandas/p3.jpg", caption: "Your face when the food arrives." },
       { src: "photos/pandas/p4.jpg", caption: "Coming towards me. My favourite thing to look at." },
-      { src: "photos/pandas/p5.jpg", caption: "You, laughing at your own joke. Again." },
+      { src: "photos/pandas/p5.jpg", caption: "You, laughing at your own joke." },
       { src: "photos/pandas/p6.jpg", caption: "That smile. That exact one." },
-      { src: "photos/pandas/p7.jpg", caption: "Us. Doing absolutely nothing. Perfectly." },
-      { src: "photos/pandas/p8.jpg", caption: "Keeping watch over our whole world." },
+      { src: "photos/pandas/p7.jpg", caption: "Us, doing nothing together." },
+      { src: "photos/pandas/p8.jpg", caption: "Looking after our whole world." },
     ],
   },
 
@@ -300,15 +300,15 @@ const CONTENT = {
     title: "Reasons, in no particular order",
     subtitle: "There are more. There will always be more.",
     items: [
-      { front: "Your laugh", back: "It's the only sound that fixes a bad day instantly." },
-      { front: "Your kindness", back: "You are gentle with people who could never repay you. That's who you are." },
-      { front: "Your mind", back: "You notice things nobody else does. Being understood by you is a privilege." },
-      { front: "Your stubbornness", back: "You don't give up on people. Especially not on me." },
-      { front: "Your eyes", back: "I've never been able to lie to them and I've never wanted to." },
-      { front: "Your courage", back: "You've been through more than you let on, and you're still soft. That's strength." },
+      { front: "Your laugh", back: "It fixes a bad day in about two seconds." },
+      { front: "Your kindness", back: "You are gentle with everyone. I get to see the most of it." },
+      { front: "Your mind", back: "You notice things nobody else notices. You understand me faster than I do." },
+      { front: "The way you hold on", back: "You don't give up on people. Especially not on me." },
+      { front: "Your eyes", back: "I have never been able to lie to them, and I have never wanted to." },
+      { front: "Your softness", back: "You stayed soft. I think that's the bravest thing about you." },
       { front: "Your hands", back: "The safest place I know is somewhere between your fingers." },
-      { front: "Your voice", back: "I could listen to you talk about absolutely nothing, forever." },
-      { front: "The way you love", back: "Completely. Without keeping score. I'm learning it from you." },
+      { front: "Your voice", back: "I could listen to you talk about nothing at all, forever." },
+      { front: "The way you love", back: "Completely, and without keeping score. I'm learning it from you." },
     ],
   },
 
@@ -418,10 +418,10 @@ const CONTENT = {
         reply: "Obviously. It was never going to be anything else.",
       },
       {
-        q: "Who says sorry first, usually?",
-        options: ["Me", "You", "Whoever misses the other one more"],
+        q: "What's my favourite thing about you?",
+        options: ["Your smile", "Your laugh", "All of it, every day"],
         answer: 2,
-        reply: "Correct. And it's usually me, and we both know it.",
+        reply: "Right. I can never pick just one.",
       },
       {
         q: "What am I doing right now?",
@@ -555,10 +555,19 @@ const CONTENT = {
      letter. If the file isn't there, the button stays hidden.
   --------------------------------------------------------- */
   voice: {
-    src: "assets/music/voice.mp3",
-    label: "Hear me say it",
-    playing: "Listening…",
-    caption: "Best with headphones, and with nobody else around.",
+    // The browser takes the first one it can play. The .ogg you recorded
+    // is Opus, which older iPhones can't play — so if you ever export an
+    // mp3 or m4a of the same recording and drop it in as voice.mp3, it
+    // will take over automatically and work everywhere.
+    sources: [
+      "assets/music/voice.mp3",
+      "assets/music/voice.ogg",
+    ],
+    label: "I sang this for you",
+    playing: "Playing…",
+    caption: "Darkhaast. Headphones, and nobody else around.",
+    // Shown only if her phone can't play any of the formats above
+    unsupported: "Your phone can't play this recording — ask me and I'll send it to you.",
   },
 
   /* ---------- PRINT ---------- */

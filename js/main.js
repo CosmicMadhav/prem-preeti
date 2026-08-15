@@ -711,23 +711,51 @@
     const V = C.voice;
     const btn = $('#voiceBtn');
     const audio = $('#voiceAudio');
-    if (!V || !V.src || !btn) return;
+    if (!V || !btn) return;
+
+    const list = V.sources || (V.src ? [V.src] : []);
+    if (!list.length) return;
 
     const label = $('#voiceLabel');
     const cap = $('#voiceCap');
     label.textContent = V.label || 'Hear me say it';
 
+    const TYPES = {
+      mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac',
+      ogg: 'audio/ogg', opus: 'audio/ogg', wav: 'audio/wav', webm: 'audio/webm',
+    };
+    // Offer every format; the browser picks the first it understands.
+    list.forEach((src) => {
+      const s = document.createElement('source');
+      s.src = src;
+      const ext = (src.split('.').pop() || '').toLowerCase();
+      if (TYPES[ext]) s.type = TYPES[ext];
+      audio.appendChild(s);
+    });
     audio.preload = 'metadata';
-    audio.src = V.src;
+    audio.load();
+
+    function showCaption(text) {
+      if (!text) return;
+      cap.textContent = text;
+      cap.hidden = false;
+    }
+
     audio.addEventListener('loadedmetadata', () => {
       btn.hidden = false;
-      if (V.caption) { cap.textContent = V.caption; cap.hidden = false; }
+      showCaption(V.caption);
     }, { once: true });
-    audio.addEventListener('error', () => { btn.hidden = true; cap.hidden = true; });
+
+    // Nothing playable — say so rather than leaving a dead button.
+    audio.addEventListener('error', () => {
+      btn.hidden = true;
+      showCaption(V.unsupported || '');
+    });
 
     audio.addEventListener('ended', () => {
       btn.classList.remove('is-playing');
       label.textContent = V.label || 'Hear me say it';
+      music.duck(false);
     });
 
     btn.addEventListener('click', () => {
@@ -735,11 +763,13 @@
         audio.play().then(() => {
           btn.classList.add('is-playing');
           label.textContent = V.playing || 'Playing…';
+          music.duck(true);          // his voice wins over the songs
         }).catch(() => {});
       } else {
         audio.pause();
         btn.classList.remove('is-playing');
         label.textContent = V.label || 'Hear me say it';
+        music.duck(false);
       }
     });
   }
