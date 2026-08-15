@@ -337,21 +337,6 @@ button{ font:inherit; color:inherit; cursor:none; }
 .cursor svg{ width:100%; height:100%; fill:var(--rose); filter:drop-shadow(0 2px 6px rgba(120,60,90,.4)); }
 .cursor.is-tap{ scale:1.6; }
 
-/* ══════════════ THE ROLLING PANDA ══════════════ */
-.roller{
-  position:fixed; z-index:5; bottom:clamp(10px,4vh,42px); left:-140px;
-  width:clamp(52px,8vw,86px); pointer-events:none; opacity:0;
-}
-.roller.go{ animation:rollAcross 7s linear; }
-.roller.go .panda{ animation:spin 1.1s linear infinite; }
-@keyframes rollAcross{
-  0%  { opacity:0; transform:translateX(0) }
-  6%  { opacity:1 }
-  94% { opacity:1 }
-  100%{ opacity:0; transform:translateX(calc(100vw + 160px)) }
-}
-@keyframes spin{ to{ rotate:360deg } }
-
 /* ══════════════ PANDA ══════════════ */
 .panda-wrap{
   position:relative; display:inline-block; padding:0; border:0; background:none;
@@ -981,53 +966,70 @@ body.is-open .music{ opacity:1; }
   background:var(--paper); border:1px solid var(--line);
   box-shadow:0 26px 52px -28px rgba(50,80,65,.75);
 }
-.atlas__paper{ position:absolute; inset:0; width:100%; height:100%; }
-.atlas__sea  { fill:#eaf4f2; }
-.atlas__land { fill:#dcecd8; stroke:rgba(79,127,87,.4); stroke-width:2; }
-.atlas__river{ stroke:#a8cfe0; stroke-width:5; stroke-linecap:round; }
-.atlas__road { stroke:rgba(180,150,110,.55); stroke-width:3; stroke-dasharray:9 7; stroke-linecap:round; }
-html.is-night .atlas__sea { fill:#16242c; }
-html.is-night .atlas__land{ fill:#1e3327; stroke:rgba(140,190,150,.35); }
+.atlas__map{ position:absolute; inset:0; z-index:1; background:#dfe9e6; }
+.atlas__map.leaflet-container{ font-family:var(--body); background:#dfe9e6; }
 
-.atlas__pins{ position:absolute; inset:0; }
-.pin{
-  position:absolute; translate:-50% -100%; padding:0; border:0; background:none;
-  width:26px; height:34px; z-index:2;
+/* keep the map from swallowing the whole page scroll on a phone */
+.atlas__map .leaflet-control-attribution{
+  font-family:var(--ui); font-size:9px; background:rgba(255,255,255,.75);
 }
-.pin::before{ /* the pin head */
-  content:""; position:absolute; inset:0 auto auto 50%; translate:-50% 0;
-  width:22px; height:22px; border-radius:50% 50% 50% 0; rotate:-45deg;
+.atlas__map .leaflet-control-zoom a{
+  color:var(--forest); font-weight:600;
+}
+
+.atlas__toggle{
+  position:absolute; z-index:500; right:12px; top:12px;
+  padding:9px 16px; border-radius:999px; border:1px solid var(--line);
+  background:var(--paper); color:var(--forest);
+  font-family:var(--ui); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  box-shadow:0 10px 22px -12px rgba(30,50,45,.8);
+  transition:transform .25s var(--ease);
+}
+.atlas__toggle:hover{ transform:translateY(-2px); }
+
+.atlas__offline{
+  position:absolute; inset:0; z-index:2; display:grid; place-items:center;
+  margin:0; padding:0 30px; text-align:center;
+  font-family:var(--body); font-style:italic; font-size:17px; color:var(--muted);
+  background:var(--paper);
+}
+
+/* the pin itself — a heart on a spike */
+.mapPin{ background:none !important; border:0 !important; }
+.mapPin__body{
+  position:relative; width:30px; height:38px;
+  filter:drop-shadow(0 5px 8px rgba(0,0,0,.45));
+}
+.mapPin__body::before{
+  content:""; position:absolute; top:0; left:50%; translate:-50% 0;
+  width:26px; height:26px; border-radius:50% 50% 50% 0; rotate:-45deg;
   background:linear-gradient(145deg,var(--rose),var(--rose-deep));
-  box-shadow:0 5px 12px -4px rgba(120,40,75,.9);
-  transition:scale .3s var(--ease);
 }
-.pin::after{ /* the dot in the middle */
-  content:""; position:absolute; top:7px; left:50%; translate:-50% 0;
-  width:8px; height:8px; border-radius:50%; background:var(--paper);
+.mapPin__body::after{
+  content:""; position:absolute; top:8px; left:50%; translate:-50% 0;
+  width:10px; height:10px; border-radius:50%; background:#fff;
 }
-.pin:hover::before,.pin.is-open::before{ scale:1.22; }
-.pin__pulse{
-  position:absolute; top:4px; left:50%; translate:-50% 0;
-  width:18px; height:18px; border-radius:50%; border:2px solid var(--rose);
+.mapPin__pulse{
+  position:absolute; top:5px; left:50%; translate:-50% 0;
+  width:22px; height:22px; border-radius:50%; border:2px solid var(--rose);
   animation:pinPulse 2.4s ease-out infinite; opacity:0;
 }
-@keyframes pinPulse{ 0%{ opacity:.8; scale:.5 } 100%{ opacity:0; scale:2.6 } }
+@keyframes pinPulse{ 0%{ opacity:.85; scale:.5 } 100%{ opacity:0; scale:2.8 } }
 
-.pin__card{
-  position:absolute; bottom:calc(100% + 12px); left:50%; translate:-50% 0;
-  width:max-content; max-width:min(60vw,260px);
-  padding:12px 16px; border-radius:14px; text-align:left;
-  background:var(--paper); border:1px solid var(--line); color:var(--ink);
-  box-shadow:0 16px 34px -18px rgba(30,50,45,.9);
-  opacity:0; scale:.8; transform-origin:50% 115%; pointer-events:none;
-  transition:opacity .3s var(--ease), scale .3s var(--ease);
+/* the popup, restyled to match the site */
+.atlas .leaflet-popup-content-wrapper{
+  background:var(--paper); color:var(--ink);
+  border:1px solid var(--line); border-radius:16px;
+  box-shadow:0 20px 40px -18px rgba(20,35,30,.9);
 }
-.pin.is-open .pin__card{ opacity:1; scale:1; }
+.atlas .leaflet-popup-tip{ background:var(--paper); border:1px solid var(--line); }
+.atlas .leaflet-popup-content{ margin:14px 18px; font-family:var(--body); }
+.atlas .leaflet-popup-close-button{ color:var(--muted) !important; }
 .pin__name{
   display:block; font-family:var(--ui); font-size:10px; letter-spacing:.2em;
-  text-transform:uppercase; color:var(--rose-deep); margin-bottom:6px;
+  text-transform:uppercase; color:var(--rose-deep); margin-bottom:7px;
 }
-.pin__note{ display:block; font-family:var(--body); font-size:16px; line-height:1.45; }
+.pin__note{ display:block; font-size:17px; line-height:1.5; }
 
 /* ══════════════ QUIZ ══════════════ */
 .quiz .wrap{ text-align:center; }
@@ -1114,7 +1116,7 @@ html.is-night .atlas__land{ fill:#1e3327; stroke:rgba(140,190,150,.35); }
 /* ══════════════ PRINT ══════════════ */
 @media print{
   .scenery,#petals,#confetti,#trail,.cursor,.dots,.progress,.music,
-  .roller,.gate,.yesover,.lightbox,.toast,.letterTools,.reply,.footer,
+  .gate,.yesover,.lightbox,.toast,.letterTools,.reply,.footer,
   .hero,.section:not(.finale){ display:none !important; }
   body{ background:#fff !important; color:#000 !important; }
   .app{ opacity:1 !important; }

@@ -82,19 +82,6 @@ const CONTENT = {
     night:     "You're up late, Preeti.",
   },
 
-  /* ---------- THE ROLLING PANDA ----------------------------
-     A panda rolls across the bottom of the screen now and then.
-     firstAfter = seconds before the first one.
-     everyMin / everyMax = seconds between the ones after that.
-     Set enabled:false to stop it completely.
-  --------------------------------------------------------- */
-  roller: {
-    enabled: true,
-    firstAfter: 5,
-    everyMin: 16,
-    everyMax: 34,
-  },
-
   /* ---------- US, SO FAR ------------------------------------
      A live counter that ticks UP from the day you two started.
 
@@ -105,7 +92,7 @@ const CONTENT = {
   together: {
     since: "2026-05-13",
     eyebrow: "Us, so far",
-    title: "How long you've been stuck with me",
+    title: "How long you've been mine",
     message:
       "Every one of those seconds happened. That's the part I can't get over — " +
       "that all of it was real, and that there's so much more of it coming.",
@@ -224,7 +211,7 @@ const CONTENT = {
     wonTitle: "Of course you won.",
     wonMessage:
       "You always were better at this than me. Remembering things, I mean. " +
-      "You remember everything I say. I don't deserve it, but I'm keeping it.",
+      "You remember everything I say, and it's one of my favourite things about you.",
     restart: "Again",
   },
 
@@ -350,14 +337,46 @@ const CONTENT = {
   map: {
     eyebrow: "The atlas",
     title: "Our places",
-    subtitle: "Tap a pin. Every one of these is a room in our world.",
+    subtitle: "A real map, with real pins. Tap one.",
+
+    // "satellite" for real aerial imagery, or "streets" for a street map.
+    // She can switch between them with the button on the map anyway.
+    style: "satellite",
+
+    // How far in it starts. 13 = a whole city, 15 = a neighbourhood,
+    // 17 = you can see individual buildings.
+    zoom: 13,
+
+    /* ►►► PUT YOUR REAL PLACES HERE ◄◄◄
+       To get the numbers: open Google Maps, RIGHT-CLICK the exact spot,
+       and the very first item in the menu is the latitude and longitude —
+       click it to copy, then paste it in as lat and lng below.
+
+       These defaults are just Ahmedabad landmarks so the map isn't empty.
+       Replace all five and the map becomes genuinely yours.
+    */
     places: [
-      { name: "Where we met",       x: 22, y: 34, note: "I had no idea what was about to happen to me." },
-      { name: "Our first proper date", x: 58, y: 22, note: "I changed my shirt four times. You noticed nothing. Perfect." },
-      { name: "The place we always go back to", x: 40, y: 62, note: "Same order every time. I'd never want to change it." },
-      { name: "Your favourite spot", x: 74, y: 55, note: "You light up here. I mostly just watch you light up." },
-      { name: "Home",               x: 55, y: 82, note: "Wherever you happen to be standing." },
+      { name: "Where we met",
+        lat: 23.0225, lng: 72.5714,
+        note: "I had no idea what was about to happen to me." },
+      { name: "Our first proper date",
+        lat: 23.0333, lng: 72.5500,
+        note: "I changed my shirt four times. You noticed nothing. Perfect." },
+      { name: "The place we always go back to",
+        lat: 23.0120, lng: 72.5800,
+        note: "Same order every time. I'd never want to change it." },
+      { name: "Your favourite spot",
+        lat: 23.0400, lng: 72.5950,
+        note: "You light up here. I mostly just watch you light up." },
+      { name: "Home",
+        lat: 23.0050, lng: 72.5600,
+        note: "Wherever you happen to be standing." },
     ],
+
+    streetsLabel: "Street map",
+    satelliteLabel: "Satellite",
+    // Shown if the map can't load (no internet, say)
+    offline: "The map needs internet to load. Everything else still works.",
   },
 
   /* ---------- THE QUIZ ---------- */
@@ -414,8 +433,8 @@ const CONTENT = {
     button: "Break the seal",
     note:
       "If you're reading this, a whole year has happened to us since I built this world, " +
-      "and I'm willing to bet it was a good one. I hope I still make you laugh. " +
-      "I hope you still pick me. I already know I'd pick you.",
+      "and I'm willing to bet it was a good one. I'm still making you laugh. " +
+      "You're still the easiest choice I've ever made, and I'd make it again today.",
   },
 
   /* ---------- SCRATCH TO REVEAL ---------- */
@@ -532,12 +551,51 @@ const CONTENT = {
     message: "You found it. Nobody else will ever see this one. I love you most.",
   },
 
-  /* ---------- MUSIC ---------- */
+  /* ---------- THE SOUNDTRACK --------------------------------
+     The music changes with the mood of each section and cross-
+     fades between tracks as she scrolls. The button bottom-left
+     mutes the whole thing.
+
+     "for" lists the section ids a track covers. Any section not
+     listed keeps playing whatever was already on.
+  --------------------------------------------------------- */
   music: {
-    // Put an mp3 at this path. If the file isn't there, the button
-    // simply hides itself — nothing breaks.
-    src: "assets/music/our-song.mp3",
     label: "our song",
+    // How loud, 0 to 1
+    volume: 0.42,
+    // Seconds to cross-fade between two tracks
+    fade: 2.2,
+
+    tracks: [
+      { title: "Jo Tum Mere Ho",
+        src: "assets/music/Love_JoTumMereHo.mp3",
+        for: ["gate", "hero", "together"] },
+
+      { title: "Until I Found You",
+        src: "assets/music/Love_UntilIFoundYou.mp3",
+        for: ["story"] },
+
+      { title: "I Love You So",
+        src: "assets/music/Love_TheWalters.mp3",
+        for: ["gallery", "pandas", "game"] },
+
+      { title: "Love Me Like You Do",
+        src: "assets/music/Love_LoveMeLikeYouDo.mp3",
+        for: ["reasons", "openwhen", "ourmap", "quiz"] },
+
+      { title: "Nadaaniyan",
+        src: "assets/music/Love_Nadaaniyan.mp3",
+        for: ["birthday"] },
+
+      { title: "Perfect",
+        src: "assets/music/Love_EDPerfect.mp3",
+        for: ["proposal"] },
+
+      // Comes back to the song the whole thing opened with
+      { title: "Jo Tum Mere Ho",
+        src: "assets/music/Love_JoTumMereHo.mp3",
+        for: ["scratch", "capsule", "starname", "finale"] },
+    ],
   },
 
   /* ---------- NAV DOTS ---------- */

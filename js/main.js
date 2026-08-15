@@ -382,43 +382,94 @@
   ========================================================= */
   function buildMap() {
     const M = C.map;
-    if (!M || !M.places || !M.places.length) { $('#ourmap').hidden = true; return; }
+    const places = (M && M.places || []).filter((p) => isFinite(p.lat) && isFinite(p.lng));
+    if (!M || !places.length) { $('#ourmap').hidden = true; return; }
 
     $('#mpEyebrow').textContent  = M.eyebrow;
     $('#mpTitle').textContent    = M.title;
     $('#mpSubtitle').textContent = M.subtitle;
 
-    const host = $('#atlasPins');
-    const pins = [];
+    // Leaflet missing (offline, blocked)? Say so instead of showing a grey box.
+    if (typeof L === 'undefined') {
+      const off = $('#atlasOffline');
+      off.textContent = M.offline || 'The map needs internet to load.';
+      off.hidden = false;
+      $('#atlasToggle').hidden = true;
+      return;
+    }
 
-    M.places.forEach((place) => {
-      const p = document.createElement('button');
-      p.type = 'button';
-      p.className = 'pin';
-      p.style.left = place.x + '%';
-      p.style.top  = place.y + '%';
-      p.setAttribute('aria-label', place.name);
-      p.innerHTML =
-        '<span class="pin__pulse"></span>' +
-        '<span class="pin__card"><b class="pin__name"></b><span class="pin__note"></span></span>';
-      $('.pin__name', p).textContent = place.name;
-      $('.pin__note', p).textContent = place.note;
+    const SAT = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 19, attribution: 'Imagery &copy; Esri' });
+    const STREETS = L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' });
 
-      p.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const open = !p.classList.contains('is-open');
-        pins.forEach((o) => o.classList.remove('is-open'));
-        p.classList.toggle('is-open', open);
-        if (open) {
-          const r = p.getBoundingClientRect();
-          FX.burst(r.left + r.width / 2, r.top, 12, 5);
-        }
-      });
-      host.appendChild(p);
-      pins.push(p);
+    let satellite = M.style !== 'streets';
+
+    const map = L.map('atlasMap', {
+      zoomControl: true,
+      scrollWheelZoom: false,   // don't hijack the page scroll
+      layers: [satellite ? SAT : STREETS],
     });
 
-    document.addEventListener('click', () => pins.forEach((p) => p.classList.remove('is-open')));
+    // Frame all the pins, whatever the coordinates are
+    const bounds = L.latLngBounds(places.map((p) => [p.lat, p.lng]));
+    if (places.length === 1) map.setView([places[0].lat, places[0].lng], M.zoom || 14);
+    else map.fitBounds(bounds, { padding: [50, 50], maxZoom: M.zoom || 14 });
+
+    places.forEach((place) => {
+      const icon = L.divIcon({
+        className: 'mapPin',
+        html: '<div class="mapPin__body"><span class="mapPin__pulse"></span></div>',
+        iconSize: [30, 38],
+        iconAnchor: [15, 38],
+        popupAnchor: [0, -34],
+      });
+      const marker = L.marker([place.lat, place.lng], { icon, title: place.name }).addTo(map);
+      marker.bindPopup(
+        '<b class="pin__name">' + esc(place.name) + '</b>' +
+        '<span class="pin__note">' + esc(place.note || '') + '</span>',
+        { maxWidth: 260, closeButton: true }
+      );
+      marker.on('popupopen', () => {
+        const el = marker.getElement();
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        FX.burst(r.left + r.width / 2, r.top, 14, 5);
+      });
+    });
+
+    /* --- streets / satellite toggle --- */
+    const toggle = $('#atlasToggle');
+    function labelToggle() {
+      toggle.textContent = satellite
+        ? (M.streetsLabel || 'Street map')
+        : (M.satelliteLabel || 'Satellite');
+    }
+    labelToggle();
+    toggle.addEventListener('click', () => {
+      map.removeLayer(satellite ? SAT : STREETS);
+      satellite = !satellite;
+      map.addLayer(satellite ? SAT : STREETS);
+      labelToggle();
+    });
+
+    // Leaflet needs a nudge if it was laid out while hidden
+    new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        map.invalidateSize();
+        obs.disconnect();
+      });
+    }, { threshold: 0.15 }).observe($('#atlas'));
+    window.addEventListener('resize', () => map.invalidateSize(), { passive: true });
+  }
+
+  /** Escape text going into a popup's HTML. */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   /* =========================================================
@@ -1044,25 +1095,6 @@
     wirePanda('#heroPanda',       '#heroPandaSay', C.panda.heroSays);
     wirePanda('.birthday__panda', '#cakePandaSay', C.panda.cakeSays);
 
-    // A panda rolls across the bottom of the screen now and then.
-    const R = C.roller || {};
-    const roller = $('#roller');
-    if (roller && !FX.reduced && R.enabled !== false) {
-      const first = (R.firstAfter != null ? R.firstAfter : 5) * 1000;
-      const lo    = (R.everyMin   != null ? R.everyMin   : 16) * 1000;
-      const hi    = (R.everyMax   != null ? R.everyMax   : 34) * 1000;
-
-      const send = () => {
-        roller.classList.remove('go');
-        void roller.offsetWidth;
-        roller.classList.add('go');
-      };
-      setTimeout(function again() {
-        if (document.body.classList.contains('is-open')) send();
-        setTimeout(again, lo + Math.random() * Math.max(0, hi - lo));
-      }, first);
-    }
-
     /* --- the easter egg: keep tapping the sleeping panda --- */
     const E = C.easterEgg;
     const gatePanda = $('#gatePanda');
@@ -1355,6 +1387,7 @@
       entries.forEach((e) => {
         if (!e.isIntersecting) return;
         links.forEach((l) => l.classList.toggle('active', l.dataset.target === e.target.id));
+        music.sectionChanged(e.target.id);   // swap the soundtrack with the mood
       });
     }, { threshold: 0.35, rootMargin: '-20% 0px -40% 0px' });
 
@@ -1380,46 +1413,94 @@
      10. MUSIC
   ========================================================= */
   const music = (() => {
-    const audio = $('#audio');
-    const btn   = $('#musicBtn');
-    let ready = false;
+    const M = C.music || {};
+    const btn = $('#musicBtn');
+    const label = $('#musicLabel');
+    const tracks = (M.tracks || []).filter((t) => t && t.src);
+    if (!tracks.length || !btn) return { play() {}, sectionChanged() {} };
 
-    audio.preload = 'metadata';
-    audio.volume = 0;
-    audio.src = C.music.src;
+    const VOL  = M.volume != null ? M.volume : 0.42;
+    const FADE = (M.fade != null ? M.fade : 2.2) * 1000;
 
-    audio.addEventListener('canplaythrough', () => { ready = true; btn.hidden = false; }, { once: true });
-    audio.addEventListener('loadedmetadata', () => { ready = true; btn.hidden = false; }, { once: true });
-    audio.addEventListener('error', () => { ready = false; btn.hidden = true; });
+    // section id -> track index
+    const bySection = {};
+    tracks.forEach((t, i) => (t.for || []).forEach((id) => { bySection[id] = i; }));
 
-    function fadeTo(target, ms = 1200) {
-      const start = audio.volume;
+    // Two players, so one can fade out while the next fades in.
+    const players = [new Audio(), new Audio()];
+    players.forEach((a) => { a.preload = 'none'; a.loop = true; a.volume = 0; });
+    let active = 0;        // which player is currently in front
+    let current = -1;      // which track index is playing
+    let on = false;        // has she got the music switched on
+    let ok = true;         // did the files load
+
+    players[0].addEventListener('error', () => { ok = false; btn.hidden = true; });
+
+    function ramp(audio, to, ms) {
+      const from = audio.volume;
       const t0 = performance.now();
+      cancelAnimationFrame(audio._raf);
       (function step(t) {
         const k = Math.min(1, (t - t0) / ms);
-        audio.volume = start + (target - start) * k;
-        if (k < 1) requestAnimationFrame(step);
-        else if (target === 0) audio.pause();
+        audio.volume = Math.max(0, Math.min(1, from + (to - from) * k));
+        if (k < 1) audio._raf = requestAnimationFrame(step);
+        else if (to === 0) audio.pause();
       })(t0);
     }
 
+    /** Bring track `i` in, fading whatever is playing out. */
+    function crossfadeTo(i) {
+      if (!ok || i < 0 || i === current) return;
+      const next = players[1 - active];
+      const prev = players[active];
+
+      // Same song either side of a gap? Just keep it playing.
+      if (current >= 0 && tracks[current].src === tracks[i].src) { current = i; return; }
+
+      next.src = tracks[i].src;
+      next.volume = 0;
+      const start = next.play();
+      if (start && start.catch) start.catch(() => {});
+
+      ramp(next, VOL, FADE);
+      if (current >= 0) ramp(prev, 0, FADE);
+
+      active = 1 - active;
+      current = i;
+      if (label && tracks[i].title) label.textContent = tracks[i].title;
+    }
+
     function play() {
-      if (!ready) return;
-      audio.play().then(() => {
-        btn.setAttribute('aria-pressed', 'true');
-        fadeTo(0.45);
-      }).catch(() => { /* browser blocked it — she can tap the button */ });
+      on = true;
+      btn.hidden = false;
+      btn.setAttribute('aria-pressed', 'true');
+      // start with whatever section she's in, falling back to the first track
+      const want = currentWanted();
+      crossfadeTo(want >= 0 ? want : 0);
     }
-    function pause() {
+
+    function stop() {
+      on = false;
       btn.setAttribute('aria-pressed', 'false');
-      fadeTo(0, 600);
+      if (label) label.textContent = M.label || 'music';
+      players.forEach((a) => ramp(a, 0, 700));
+      current = -1;
     }
 
-    btn.addEventListener('click', () => {
-      if (audio.paused) play(); else pause();
-    });
+    let wanted = -1;
+    function currentWanted() { return wanted; }
 
-    return { play };
+    /** Called as she scrolls into a new section. */
+    function sectionChanged(id) {
+      if (!(id in bySection)) return;
+      wanted = bySection[id];
+      if (on) crossfadeTo(wanted);
+    }
+
+    btn.addEventListener('click', () => { if (on) stop(); else play(); });
+    btn.hidden = false;
+
+    return { play, sectionChanged };
   })();
 
   /* =========================================================

@@ -63,12 +63,46 @@ leave it out and the button simply doesn't appear.
 
 | File | Where | What it turns on |
 |---|---|---|
-| Your song | `assets/music/our-song.mp3` | The music toggle, bottom-left |
 | **Your voice** | `assets/music/voice.mp3` | A **"Hear me say it"** button under the letter — record yourself reading it on your phone |
 | Her photos | `photos/` | The six story chapters and the polaroid wall (see [photos/README.md](photos/README.md)) |
 
 The photos are the big one. Everything else on this site is decoration
 around them.
+
+## 🎵 The soundtrack
+
+Six songs are already in. The music **changes with the mood of each
+section** and cross-fades as she scrolls — *Jo Tum Mere Ho* on the gate,
+*Until I Found You* through your story, *The Walters* for the pandas,
+*Love Me Like You Do* for the reasons, *Nadaaniyan* for the birthday,
+*Perfect* for the proposal, then back to *Jo Tum Mere Ho* for the letter
+so it comes full circle. Full table and how to change it:
+[assets/music/README.md](assets/music/README.md).
+
+---
+
+## 🗺️ Putting your real places on the map
+
+The map is real satellite imagery, so the pins need real coordinates. The
+five in there now are just Ahmedabad landmarks so it isn't empty.
+
+**To get a coordinate:** open Google Maps, **right-click the exact spot**,
+and the very first item in the menu is the latitude and longitude. Click it
+to copy, then paste it into `js/content.js` → `map.places`:
+
+```js
+{ name: "Where we met",
+  lat: 23.0225, lng: 72.5714,
+  note: "I had no idea what was about to happen to me." },
+```
+
+The map frames itself around whatever pins you give it, so you don't have
+to set the zoom or centre. It works anywhere in the world.
+
+The library (Leaflet) is stored in `vendor/` rather than loaded from a CDN,
+so nothing breaks if some third party goes down. The map imagery does need
+internet — without it the section shows a short message instead of a broken
+grey box.
 
 ---
 
@@ -149,7 +183,7 @@ gently), and she can mute it any time from the bottom-left button.
 | **Open when…** | Six sealed envelopes with wax seals — *open when you miss me*, *open when you've had a bad day*, and so on. She taps one open when she needs it; the flap folds back and the note unrolls. Meant to be saved, not read all at once. |
 | **Birthday** | A CSS cake with real flickering candles. She taps each flame to blow it out; the last one triggers confetti and your birthday message. |
 | **The question** | The proposal. The "Let me think…" button runs away from her cursor (and her finger), getting shyer each time, while YES grows. YES takes over the screen. |
-| **Our places** | An illustrated map with pins on the places that matter. Tap a pin for the story. Move a pin by nudging its `x`/`y` percentages. |
+| **Our places** | A **real map** — actual satellite imagery, zoomable, with a streets/satellite toggle — pinned with the places that matter. See below for putting your own places on it. |
 | **The quiz** | Four questions about you two, with a reply to each answer. |
 | **The secret** | A scratch card she rubs away with her finger to uncover one last line. |
 | **Time capsule** | A wax-sealed letter that **refuses to open** until the date in `timeCapsule.openOn`. Until then it just counts down the days. She'll have to come back. |
