@@ -482,6 +482,90 @@ body:not(.is-booting) .boot{ opacity:0; visibility:hidden; pointer-events:none; 
   100%{ transform:translateX(360%) }
 }
 
+/* ══════════════ SORRY SCREEN ══════════════ */
+.sorry{
+  position:fixed; inset:0; z-index:300;
+  display:grid; place-items:center; padding:24px;
+  background:linear-gradient(180deg,#fff6e9,#ffe3ec 55%,#ffd9dd);
+  transition:opacity .7s var(--ease), visibility .7s;
+}
+body:not(.is-sorry) .sorry{ opacity:0; visibility:hidden; pointer-events:none; }
+
+.sorry__stage{
+  position:relative; z-index:2; width:min(100%,440px);
+  background:var(--paper); border-radius:28px;
+  padding:clamp(32px,7vw,48px) clamp(24px,6vw,40px) clamp(34px,6vw,44px);
+  text-align:center;
+  box-shadow:0 40px 90px -30px rgba(120,60,80,.35), 0 1px 0 rgba(255,255,255,.7) inset;
+  animation:sorryIn .9s var(--ease);
+  transition:opacity .5s var(--ease), transform .5s var(--ease);
+}
+.sorry.is-leaving .sorry__stage{ opacity:0; transform:scale(.94) translateY(10px); }
+@keyframes sorryIn{ from{ opacity:0; translate:0 22px; scale:.96 } to{ opacity:1; translate:0 0; scale:1 } }
+
+.sorry__baby{ position:relative; width:clamp(116px,30vw,148px); margin:0 auto 16px; }
+.sorry__babySvg{
+  width:100%; display:block;
+  filter:drop-shadow(0 10px 16px rgba(60,40,50,.2));
+  animation:sorryShake 2.6s ease-in-out infinite;
+}
+@keyframes sorryShake{
+  0%,100%{ transform:rotate(0deg) }
+  25%    { transform:rotate(-3deg) }
+  75%    { transform:rotate(3deg) }
+}
+
+.tear{
+  position:absolute; top:54%; width:7px; height:11px; border-radius:50% 50% 50% 0;
+  background:linear-gradient(180deg,#cfe9ff,#7fbfe8);
+  opacity:0; animation:tearFall 1.9s ease-in infinite;
+}
+.tear--l{ left:31%; animation-delay:.15s; }
+.tear--r{ right:31%; animation-delay:1.05s; }
+@keyframes tearFall{
+  0%  { opacity:0;   transform:translateY(0)    rotate(45deg); }
+  16% { opacity:1; }
+  78% { opacity:.85; }
+  100%{ opacity:0;   transform:translateY(32px) rotate(45deg); }
+}
+
+.sorry__eyebrow{
+  font-family:var(--ui); font-size:11px; letter-spacing:.32em; text-transform:uppercase;
+  color:var(--rose-deep); margin:0 0 10px;
+}
+.sorry__title{
+  font-family:var(--serif); font-weight:600; font-size:clamp(27px,7vw,38px);
+  line-height:1.22; margin:0 0 16px; color:var(--forest);
+}
+.sorry__title span{
+  display:block; font-family:var(--script); font-weight:400; font-size:1.5em;
+  color:var(--rose-deep); margin-top:2px;
+}
+.sorry__msg{
+  font-size:clamp(16px,3.8vw,19px); color:var(--ink-2); line-height:1.6; margin:0 0 28px;
+}
+
+.sorry__btn{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:15px 30px; border-radius:999px; border:0;
+  background:linear-gradient(135deg,var(--rose),var(--rose-deep));
+  color:#fff; font-family:var(--ui); font-weight:600; font-size:15px; letter-spacing:.02em;
+  box-shadow:0 14px 28px -12px rgba(192,74,120,.7);
+  transition:transform .25s var(--ease), box-shadow .25s;
+  animation:sorryBtnPulse 2.4s ease-in-out infinite;
+}
+.sorry__btn:hover{ transform:translateY(-2px) scale(1.03); box-shadow:0 18px 34px -12px rgba(192,74,120,.85); }
+.sorry__btn:active{ transform:translateY(0) scale(.97); }
+.sorry__btn i{ font-style:normal; }
+@keyframes sorryBtnPulse{
+  0%,100%{ box-shadow:0 14px 28px -12px rgba(192,74,120,.7) }
+  50%    { box-shadow:0 14px 34px -8px  rgba(192,74,120,.95) }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sorry__babySvg,.tear,.sorry__btn{ animation:none; }
+}
+
 /* ══════════════ THE GATE ══════════════ */
 .gate{
   position:fixed; inset:0; z-index:100;

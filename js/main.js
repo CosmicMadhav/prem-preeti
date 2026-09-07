@@ -2180,6 +2180,21 @@
   }
 
   /* =========================================================
+     SORRY SCREEN — the very first thing she sees
+  ========================================================= */
+  function initSorry() {
+    const el  = $('#sorryScreen');
+    const btn = $('#sorryBtn');
+    if (!el || !btn) return;
+    btn.addEventListener('click', () => {
+      buzz(15);
+      el.classList.add('is-leaving');
+      document.body.classList.remove('is-sorry');
+      setTimeout(() => el.remove(), 700);
+    }, { once: true });
+  }
+
+  /* =========================================================
      BOOT
   ========================================================= */
   function boot() {
@@ -2246,8 +2261,9 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { boot(); clearBootCover(); });
+    document.addEventListener('DOMContentLoaded', () => { initSorry(); boot(); clearBootCover(); });
   } else {
+    initSorry();
     boot();
     clearBootCover();
   }

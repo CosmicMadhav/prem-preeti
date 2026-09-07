@@ -39,7 +39,42 @@
 <link rel="stylesheet" href="css/style.css" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐼</text></svg>" />
 </head>
-<body class="is-locked is-booting">
+<body class="is-locked is-booting is-sorry">
+
+<!-- ══════════════ SORRY SCREEN ══════════════
+     The very first thing she sees, above everything else — even the
+     boot cover. A hand-drawn crying baby, an apology, and a button
+     that lets the rest of the page (boot cover, then the gate) carry
+     on exactly as it would have otherwise.
+-->
+<div class="sorry" id="sorryScreen">
+  <div class="sorry__stage">
+    <div class="sorry__baby" aria-hidden="true">
+      <svg class="sorry__babySvg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <path d="M70 30c-4-14 20-14 16 0" fill="none" stroke="#2b2320" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="26" cy="88" r="12" fill="#ffdec0"/>
+        <circle cx="134" cy="88" r="12" fill="#ffdec0"/>
+        <circle cx="80" cy="86" r="52" fill="#ffdec0"/>
+        <ellipse cx="46" cy="103" rx="11" ry="7" fill="#ff9dbd" opacity=".55"/>
+        <ellipse cx="114" cy="103" rx="11" ry="7" fill="#ff9dbd" opacity=".55"/>
+        <path d="M48 58q10-6 20-2" stroke="#2b2320" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+        <path d="M92 56q10-4 20 2" stroke="#2b2320" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+        <path d="M52 74q9-12 20 0" stroke="#2b2320" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <path d="M88 74q9-12 20 0" stroke="#2b2320" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="80" cy="117" rx="16" ry="14" fill="#8c3b45"/>
+        <ellipse cx="80" cy="121" rx="10" ry="7" fill="#e6717c"/>
+      </svg>
+      <span class="tear tear--l"></span>
+      <span class="tear tear--r"></span>
+    </div>
+    <p class="sorry__eyebrow">ek chhoti si baat…</p>
+    <h1 class="sorry__title">Sorry babu<span>aa jaao na</span></h1>
+    <p class="sorry__msg">Maaf kar do please, meri jaan —<br>main tumse bahut pyaar karta hoon.</p>
+    <button class="sorry__btn" id="sorryBtn" type="button">
+      <span>aa gayi, chalo</span><i aria-hidden="true">🐼💗</i>
+    </button>
+  </div>
+</div>
 
 <!-- ══════════════ FIRST PAINT ══════════════
      Covers the page until the fonts and stylesheet are ready, so she
