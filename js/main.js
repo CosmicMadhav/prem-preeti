@@ -2186,6 +2186,8 @@
     const el  = $('#sorryScreen');
     const btn = $('#sorryBtn');
     if (!el || !btn) return;
+    const hearts = $('#sorryHearts');
+    if (hearts) FX.floatingHearts(hearts, 16);
     btn.addEventListener('click', () => {
       buzz(15);
       el.classList.add('is-leaving');

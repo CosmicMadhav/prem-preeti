@@ -491,17 +491,38 @@ body:not(.is-booting) .boot{ opacity:0; visibility:hidden; pointer-events:none; 
 }
 body:not(.is-sorry) .sorry{ opacity:0; visibility:hidden; pointer-events:none; }
 
+.sorry__hearts{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:1; }
+.sorry__hearts span{ position:absolute; bottom:-40px; opacity:0; animation:rise linear infinite; }
+
 .sorry__stage{
   position:relative; z-index:2; width:min(100%,440px);
   background:var(--paper); border-radius:28px;
   padding:clamp(32px,7vw,48px) clamp(24px,6vw,40px) clamp(34px,6vw,44px);
   text-align:center;
-  box-shadow:0 40px 90px -30px rgba(120,60,80,.35), 0 1px 0 rgba(255,255,255,.7) inset;
+  box-shadow:0 40px 90px -30px rgba(120,60,80,.35), 0 0 0 6px rgba(255,255,255,.6),
+             0 1px 0 rgba(255,255,255,.7) inset;
   animation:sorryIn .9s var(--ease);
   transition:opacity .5s var(--ease), transform .5s var(--ease);
 }
+.sorry__stage::before{
+  content:""; position:absolute; inset:-18px; z-index:-1; border-radius:38px;
+  background:radial-gradient(closest-side, rgba(255,157,189,.45), rgba(255,157,189,0) 72%);
+  animation:sorryGlow 3.2s ease-in-out infinite;
+}
+@keyframes sorryGlow{ 0%,100%{ opacity:.6; scale:1 } 50%{ opacity:1; scale:1.05 } }
 .sorry.is-leaving .sorry__stage{ opacity:0; transform:scale(.94) translateY(10px); }
 @keyframes sorryIn{ from{ opacity:0; translate:0 22px; scale:.96 } to{ opacity:1; translate:0 0; scale:1 } }
+
+.sorry__pets{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:0 0 18px; }
+.sorry__pets .pet{
+  display:inline-block; padding:6px 14px; border-radius:999px;
+  background:var(--blush); color:var(--rose-deep);
+  font-family:var(--ui); font-size:12px; font-weight:600; letter-spacing:.02em;
+  animation:petBob 3.4s ease-in-out infinite;
+}
+.sorry__pets .pet:nth-child(2){ animation-delay:.35s; }
+.sorry__pets .pet:nth-child(3){ animation-delay:.7s; }
+@keyframes petBob{ 0%,100%{ translate:0 0 } 50%{ translate:0 -3px } }
 
 .sorry__baby{ position:relative; width:clamp(116px,30vw,148px); margin:0 auto 16px; }
 .sorry__babySvg{
@@ -516,12 +537,12 @@ body:not(.is-sorry) .sorry{ opacity:0; visibility:hidden; pointer-events:none; }
 }
 
 .tear{
-  position:absolute; top:54%; width:7px; height:11px; border-radius:50% 50% 50% 0;
+  position:absolute; top:47%; width:7px; height:11px; border-radius:50% 50% 50% 0;
   background:linear-gradient(180deg,#cfe9ff,#7fbfe8);
   opacity:0; animation:tearFall 1.9s ease-in infinite;
 }
-.tear--l{ left:31%; animation-delay:.15s; }
-.tear--r{ right:31%; animation-delay:1.05s; }
+.tear--l{ left:26%; animation-delay:.15s; }
+.tear--r{ right:26%; animation-delay:1.05s; }
 @keyframes tearFall{
   0%  { opacity:0;   transform:translateY(0)    rotate(45deg); }
   16% { opacity:1; }
